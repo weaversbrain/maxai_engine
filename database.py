@@ -1,8 +1,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import os
+from dotenv import load_dotenv
 
-DB_URL = 'mysql+pymysql://maxai:maxai$32!@139.150.75.94:3306/maxai_b2b_cms'
+load_dotenv() # 환경변수 읽어오기
+
+DB_URL = os.getenv('MYSQL_MAXAI_B2B')
 
 engine = create_engine(DB_URL, pool_recycle = 500)   # DB 커넥션 풀 생성
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)    # DB접속을 위한 클래스
