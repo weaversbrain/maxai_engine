@@ -1,21 +1,90 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-import os
-from dotenv import load_dotenv
+import psycopg2 #postqresql
+import pymysql  #mysql
+from dotenv import dotenv_values
 
-load_dotenv() # 환경변수 읽어오기
+config = dotenv_values(".env") # 환경변수 읽어오기
 
-DB_URL = os.getenv('MYSQL_MAXAI_B2B')
+class Database():
+    def __init__(self, gubun):
 
-engine = create_engine(DB_URL, pool_recycle = 500)   # DB 커넥션 풀 생성
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)    # DB접속을 위한 클래스
- 
-Base = declarative_base()    # Base 클래스는 DB 모델 구성할 때 사용
+        if gubun == 'postqresql':
+            self.db = psycopg2.connect(host=config['POSTQRESQL_HOST'], dbname=config['POSTQRESQL_DB'],user=config['POSTQRESQL_USER'],password=config['POSTQRESQL_PASSWD'],port=config['POSTQRESQL_PORT'])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+        elif gubun == 'mysql':
+            self.db = pymysql.connect(host=config['MYSQL_MAXAI_B2B_HOST'], port=int(config['MYSQL_MAXAI_B2B_PORT']), user=config['MYSQL_MAXAI_B2B_USER'], passwd=config['MYSQL_MAXAI_B2B_PASSWD'], db=config['MYSQL_MAXAI_B2B_DB'], charset=config['MYSQL_MAXAI_B2B_CHARSET'])
+
+        if self.db:
+            self.cursor = self.db.cursor()
+
+    def __del__(self):
+        self.db.close()
+        self.cursor.close()
+
+    def execute(self,query,args={}):
+        self.cursor.execute(query,args)
+        row = self.cursor.fetchall()
+        return row
+
+    def commit(self):
+        self.cursor.commit()
+
+    def insertDB(self,table,colum,data):
+        sql = " INSERT INTO {table}({colum}) VALUES ({data}) ;".format(table=table,colum=colum,data=data)
+        #print(sql)
+        try:
+            self.cursor.execute(sql)
+            self.db.commit()
+        except Exception as e :
+            print(" insert DB  ",e)
+
+    def readDB(self,table,colum):
+        sql = " SELECT {colum} from {table}".format(colum=colum,table=table)
+        try:
+            self.cursor.execute(sql)
+            result = self.cursor.fetchall()
+        except Exception as e :
+            result = (" read DB err",e)
+        
+        return result
+    
+    def readDBOne(self,table,colum):
+        sql = " SELECT {colum} from {table}".format(colum=colum,table=table)
+        try:
+            self.cursor.execute(sql)
+            result = self.cursor.fetchone()
+        except Exception as e :
+            result = (" read DB err",e)
+        
+        return result
+
+    def readDBSql(self,sql):
+        try:
+            self.cursor.execute(sql)
+            result = self.cursor.fetchall()
+        except Exception as e :
+            result = (" read DB err",e)
+        
+        return result
+    
+    def updateDB(self,table,colum,value,condition):
+        sql = " UPDATE {table} SET {colum}='{value}' WHERE {colum}='{condition}' ".format(table=table , colum=colum ,value=value,condition=condition )
+        try :
+            self.cursor.execute(sql)
+            self.db.commit()
+        except Exception as e :
+            print(" update DB err",e)
+
+    def updateDBSql(self,sql):
+        try :
+            self.cursor.execute(sql)
+            self.db.commit()
+        except Exception as e :
+            print(" update DB err",e)
+
+    def deleteDB(self,table,condition):
+        sql = " delete from {table} where {condition} ; ".format(table=table, condition=condition)
+        try :
+            self.cursor.execute(sql)
+            self.db.commit()
+        except Exception as e:
+            print( "delete DB err", e)

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from database import get_db
+from database1 import get_db
 
 from fastapi import APIRouter, Depends
 
