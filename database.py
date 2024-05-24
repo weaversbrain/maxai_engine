@@ -1,3 +1,17 @@
+"""
++----------------------------------------------------------------------+
+| Copyright (c) 2024 WEAVERSBRAIN. co. Ltd
++----------------------------------------------------------------------+
+| 작업일 : 2024-05-23
+| 파일설명 : 
++----------------------------------------------------------------------+
+| 작업자 : koreanred
++----------------------------------------------------------------------+
+| 수정이력
+|
++----------------------------------------------------------------------+ 
+"""
+
 import psycopg2 #postqresql
 import pymysql  #mysql
 from dotenv import dotenv_values
@@ -34,8 +48,10 @@ class Database():
         try:
             self.cursor.execute(sql)
             self.db.commit()
+            return self.cursor.lastrowid    
         except Exception as e :
             print(" insert DB  ",e)
+        
 
     def readDB(self,table,colum):
         sql = " SELECT {colum} from {table}".format(colum=colum,table=table)
