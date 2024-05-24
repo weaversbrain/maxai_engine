@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from database import Database
+from app.core.database import Database
 from typing import Union
 
 router = APIRouter()
