@@ -1,3 +1,9 @@
 #환경 설정 파일
 .env
 .venv
+.xlsx
+.json
+.pyc
+
+__pycache__/*
+app/core/__pycache__/

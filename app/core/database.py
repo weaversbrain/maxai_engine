@@ -41,64 +41,35 @@ class Database():
 
     def commit(self):
         self.cursor.commit()
-
-    def insertDB(self,table,colum,data):
-        sql = " INSERT INTO {table}({colum}) VALUES ({data}) ;".format(table=table,colum=colum,data=data)
-        #print(sql)
+       
+    def insertDB(self,sql):
         try:
             self.cursor.execute(sql)
             self.db.commit()
             return self.cursor.lastrowid    
         except Exception as e :
             print(" insert DB  ",e)
-        
-
-    def readDB(self,table,colum):
-        sql = " SELECT {colum} from {table}".format(colum=colum,table=table)
+ 
+    def readDB(self,sql,type='one'):
         try:
             self.cursor.execute(sql)
-            result = self.cursor.fetchall()
-        except Exception as e :
-            result = (" read DB err",e)
-        
-        return result
-    
-    def readDBOne(self,table,colum):
-        sql = " SELECT {colum} from {table}".format(colum=colum,table=table)
-        try:
-            self.cursor.execute(sql)
-            result = self.cursor.fetchone()
+            if type == 'one' :
+                result = self.cursor.fetchone()
+            else:
+                result = self.cursor.fetchall()
         except Exception as e :
             result = (" read DB err",e)
         
         return result
 
-    def readDBSql(self,sql):
-        try:
-            self.cursor.execute(sql)
-            result = self.cursor.fetchall()
-        except Exception as e :
-            result = (" read DB err",e)
-        
-        return result
-    
-    def updateDB(self,table,colum,value,condition):
-        sql = " UPDATE {table} SET {colum}='{value}' WHERE {colum}='{condition}' ".format(table=table , colum=colum ,value=value,condition=condition )
+    def updateDB(self,sql):
         try :
             self.cursor.execute(sql)
             self.db.commit()
         except Exception as e :
             print(" update DB err",e)
 
-    def updateDBSql(self,sql):
-        try :
-            self.cursor.execute(sql)
-            self.db.commit()
-        except Exception as e :
-            print(" update DB err",e)
-
-    def deleteDB(self,table,condition):
-        sql = " delete from {table} where {condition} ; ".format(table=table, condition=condition)
+    def deleteDB(self,sql):
         try :
             self.cursor.execute(sql)
             self.db.commit()
