@@ -1,14 +1,14 @@
 from fastapi import APIRouter
 from app.core.database import Database
 from typing import Union
-from model import createChatModel
+from model import *
 from crud import *
 
 router = APIRouter()
 
 
 @router.post("/createChat")
-async def createChat(createChatData: createChatModel):
+async def createChat(createChatData: CreateChatModel):
     if (
         createChatData["userId"]
         and createChatData["userName"]
@@ -22,8 +22,8 @@ async def createChat(createChatData: createChatModel):
 
 
 @router.post("/module")
-async def moduleStart(chatId: int = 0, module: Union[str, None] = None):
-    if chatId == 0 or module == "":
+async def moduleStart(moduleData: ModuleModel):
+    if moduleData["chatId"] == 0 or moduleData["module"] == "":
         return {"result": False}
     else:
         return {"result": True}
