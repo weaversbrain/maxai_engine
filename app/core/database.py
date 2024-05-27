@@ -16,8 +16,7 @@ import psycopg2  # postqresql
 import pymysql  # mysql
 from dotenv import dotenv_values
 
-config = dotenv_values(".env")  # 환경변수 읽어오기
-
+config = dotenv_values("D:\python\engine6\.env")  # 환경변수 읽어오기
 
 class Database:
     def __init__(self, gubun):
