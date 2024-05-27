@@ -16,10 +16,10 @@ import psycopg2  # postqresql
 import pymysql  # mysql
 from dotenv import dotenv_values
 
+config = dotenv_values("E:\maxai_engine\.env")  # 환경변수 읽어오기
+
 
 class Database:
-
-    config = dotenv_values("E:\maxai_engine\.env")  # 환경변수 읽어오기
 
     def __init__(self, gubun):
 
