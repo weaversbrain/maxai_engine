@@ -18,11 +18,6 @@ openaiClient = OpenAI(
     api_key=os.getenv("API_KEY1"),
 )
 
-fakeData = {"chatId": 1}
-
-getChat(fakeData)
-sys.exit()
-
 
 def runEngin6(data):
 
@@ -31,19 +26,10 @@ def runEngin6(data):
     ######################################
     # 유저 정보 세팅
     ######################################
+    fakeData = {"chatId": 1}
+    chatData = getChat(fakeData)
 
     userInfo = {}
-
-    """
-        'userName': 'BeomYeol',
-        'userAge': 24,
-        'userGender': 'Female',
-        'userNationality': 'Korean',
-        'userCompany': 'StudyMax',
-        'userPosition': 'Prompt Engineer',
-    }
-
-    """
 
     ######################################
     # 튜터 정보 세팅
