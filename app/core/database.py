@@ -15,9 +15,12 @@
 import psycopg2  # postqresql
 import pymysql  # mysql
 from dotenv import dotenv_values
+import os
 
-config = dotenv_values("E:\maxai_engine\.env")  # 환경변수 읽어오기
+# 절대경로
+abspath = os.path.dirname(os.path.abspath(__file__)) 
 
+config = dotenv_values(abspath+"/.env")  # 환경변수 읽어오기
 
 class Database:
 

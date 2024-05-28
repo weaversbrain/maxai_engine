@@ -1,11 +1,10 @@
 from fastapi import APIRouter
 from app.core.database import Database
 from typing import Union
-from model import *
-from crud import *
+from app.model import *
+from app.crud import *
 
 router = APIRouter()
-
 
 @router.post("/createChat")
 async def createChat(createChatData: CreateChatModel):

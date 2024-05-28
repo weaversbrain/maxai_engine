@@ -1,8 +1,8 @@
-from core.database import Database
-from model import ChatModel, createChatModel
+from app.core.database import Database
+from app.model import ChatModel, CreateChatModel
 
 
-def setChat(createChatData: createChatModel):
+def setChat(createChatData: CreateChatModel):
     db = Database("mysql")
     qry = (
         "INSERT INTO Chat SET userId = '"
