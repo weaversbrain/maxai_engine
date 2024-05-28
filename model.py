@@ -15,5 +15,5 @@ class CreateChatModel(BaseModel):
 
 
 class ModuleModel(BaseModel):
-    chatId: int = (0,)
+    chatId: int = 0
     module: Optional[str] = None
