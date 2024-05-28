@@ -19,7 +19,6 @@ import os
 
 # 절대경로
 abspath = os.path.dirname(os.path.abspath(__file__)) 
-
 config = dotenv_values(abspath+"/.env")  # 환경변수 읽어오기
 
 class Database:
@@ -28,21 +27,21 @@ class Database:
 
         if gubun == "postqresql":
             self.db = psycopg2.connect(
-                host=self.config["POSTQRESQL_HOST"],
-                dbname=self.config["POSTQRESQL_DB"],
-                user=self.config["POSTQRESQL_USER"],
-                password=self.config["POSTQRESQL_PASSWD"],
-                port=self.config["POSTQRESQL_PORT"],
+                host=config["POSTQRESQL_HOST"],
+                dbname=config["POSTQRESQL_DB"],
+                user=config["POSTQRESQL_USER"],
+                password=config["POSTQRESQL_PASSWD"],
+                port=config["POSTQRESQL_PORT"],
             )
 
         elif gubun == "mysql":
             self.db = pymysql.connect(
-                host=self.config["MYSQL_MAXAI_B2B_HOST"],
-                port=int(self.config["MYSQL_MAXAI_B2B_PORT"]),
-                user=self.config["MYSQL_MAXAI_B2B_USER"],
-                passwd=self.config["MYSQL_MAXAI_B2B_PASSWD"],
-                db=self.config["MYSQL_MAXAI_B2B_DB"],
-                charset=self.config["MYSQL_MAXAI_B2B_CHARSET"],
+                host=config["MYSQL_MAXAI_B2B_HOST"],
+                port=int(config["MYSQL_MAXAI_B2B_PORT"]),
+                user=config["MYSQL_MAXAI_B2B_USER"],
+                passwd=config["MYSQL_MAXAI_B2B_PASSWD"],
+                db=config["MYSQL_MAXAI_B2B_DB"],
+                charset=config["MYSQL_MAXAI_B2B_CHARSET"],
             )
 
         if self.db:

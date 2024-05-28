@@ -7,6 +7,20 @@ from app.crud import *
 router = APIRouter()
 
 @router.post("/createChat")
+async def createChat(userId: int = 0,userName: Union[str, None] = None,teacherName: Union[str, None] = None,teacherPersona: Union[str, None] = None):
+
+    if (
+        userId 
+        and userName
+        and teacherName
+        and teacherPersona
+    ):
+        chatId = setChat(userId,userName,teacherName,teacherPersona)
+        return {"result": True, "chatId": chatId}
+    else:
+        return {"result": False}
+
+"""
 async def createChat(createChatData: CreateChatModel):
     if (
         createChatData.userId 
@@ -18,8 +32,6 @@ async def createChat(createChatData: CreateChatModel):
         return {"result": True, "chatId": chatId}
     else:
         return {"result": False}
-
-"""
 async def createChat(userId: int = 0,userName: Union[str, None] = None,teacherName: Union[str, None] = None,teacherPersona: Union[str, None] = None):
 
     if (

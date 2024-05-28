@@ -1,18 +1,18 @@
 from app.database import Database
 from app.model import ChatModel, CreateChatModel
+from typing import Union
 
-
-def setChat(createChatData):
+def setChat(userId: int = 0,userName: Union[str, None] = None,teacherName: Union[str, None] = None,teacherPersona: Union[str, None] = None):
     db = Database("mysql")
     qry = (
-        "INSERT INTO Chat SET userId = "
-        + str(createChatData.userId)
-        + ", userName = '"
-        + createChatData.userName
+        "INSERT INTO Chat SET userId = '"
+        + str(userId)
+        + "', userName = '"
+        + userName
         + "', teacherName = '"
-        + createChatData.teacherName
+        + teacherName
         + "', teacherPersona = '"
-        + createChatData.teacherPersona
+        + teacherPersona
         + "'"
     )
     chatId = db.insertDB(qry)
