@@ -1,9 +1,5 @@
-#환경 설정 파일
-.env
-.venv
-.xlsx
-.json
-.pyc
+prompts/
+__pycache__/
 
-__pycache__/*
-app/core/__pycache__/
+.pyc
+.env
