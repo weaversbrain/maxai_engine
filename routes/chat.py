@@ -1,12 +1,12 @@
 from fastapi import APIRouter
-#from app.core.database import Database
+#from database import Database
 from typing import Union
-from app.model import CreateChatModel, ModuleModel
-from app.crud import *
+from model import CreateChatModel, ModuleModel
+from crud import *
 
-router = APIRouter()
+chat = APIRouter(prefix='/chat', tags=['chat'])
 
-@router.post("/createChat")
+@chat.post("/create")
 async def createChat(userId: int = 0,userName: Union[str, None] = None,teacherName: Union[str, None] = None,teacherPersona: Union[str, None] = None):
 
     if (
@@ -42,7 +42,7 @@ async def createChat(userId: int = 0,userName: Union[str, None] = None,teacherNa
     ):
 """
 
-@router.post("/module")
+@chat.post("/module")
 async def moduleStart(moduleData: ModuleModel):
     if moduleData["chatId"] == 0 or moduleData["module"] == "":
         return {"result": False}
@@ -50,7 +50,7 @@ async def moduleStart(moduleData: ModuleModel):
         return {"result": True}
 
 
-@router.post("/addUserStatement")
+@chat.post("/addUserStatement")
 async def addUserStatement():
     chatId = 1
     return {"result": True}

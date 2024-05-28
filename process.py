@@ -1,6 +1,6 @@
 # from fastapi import FastAPI
 # from prompt_base import *
-# from app.utility import renderTemplate
+# from utility import renderTemplate
 from openai import OpenAI
 import datetime, os
 from dotenv import load_dotenv

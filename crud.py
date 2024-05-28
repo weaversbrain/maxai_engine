@@ -1,5 +1,5 @@
-from app.database import Database
-from app.model import ChatModel, CreateChatModel
+from database import Database
+from model import ChatModel, CreateChatModel
 from typing import Union
 
 def setChat(userId: int = 0,userName: Union[str, None] = None,teacherName: Union[str, None] = None,teacherPersona: Union[str, None] = None):

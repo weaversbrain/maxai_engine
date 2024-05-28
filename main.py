@@ -1,11 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# from fastapi.routing import APIRoute
-
-from app.api.main import api_router
+from routes.chat import chat
 
 app = FastAPI()
+app.include_router(chat)
 
 origins = [
     "http://192.168.123.51",
@@ -21,5 +20,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.include_router(api_router)
