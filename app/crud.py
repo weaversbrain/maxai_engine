@@ -1,18 +1,18 @@
-from app.core.database import Database
+from app.database import Database
 from app.model import ChatModel, CreateChatModel
 
 
-def setChat(createChatData: CreateChatModel):
+def setChat(createChatData):
     db = Database("mysql")
     qry = (
-        "INSERT INTO Chat SET userId = '"
-        + createChatData["userId"]
-        + "', userName = '"
-        + createChatData["userName"]
+        "INSERT INTO Chat SET userId = "
+        + str(createChatData.userId)
+        + ", userName = '"
+        + createChatData.userName
         + "', teacherName = '"
-        + createChatData["teacherName"]
-        + "', createChatData['teacherPersona'] = '"
-        + teacherPersona
+        + createChatData.teacherName
+        + "', teacherPersona = '"
+        + createChatData.teacherPersona
         + "'"
     )
     chatId = db.insertDB(qry)
