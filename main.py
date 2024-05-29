@@ -4,8 +4,27 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes.chat import chat
 
 app = FastAPI()
+SWAGGER_HEADERS = {
+    "title": "MaxAI Engine6",
+    "description": "## SWAGGER - MaxAI Engine6.",
+}
+ 
+app = FastAPI(
+    swagger_ui_parameters={
+        "deepLinking": True,
+        "displayRequestDuration": True,
+        "docExpansion": "none",
+        "operationsSorter": "method",
+        "filter": False,
+        "tagsSorter": "alpha",
+        "syntaxHighlight.theme": "tomorrow-night",
+    },
+    **SWAGGER_HEADERS
+)
+
 app.include_router(chat)
 
+# Set all CORS enabled origins
 origins = [
     "http://192.168.123.51",
     "http://192.168.123.51:8080",
