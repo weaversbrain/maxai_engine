@@ -89,13 +89,14 @@ def runEngin6(moduleData: ModuleModel):
     renderData.update(tutorInfo)
     renderData.update(otherInfo)
 
-    # 모듈이 initial인 경우
+
     
     # Render the template with the data
     template_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(searchpath='./'))
     initial_rendered = template_environment.get_template(templates['initial']).render(renderData)
     prompt_dict = {x: template_environment.get_template(y).render(renderData) for x, y in templates.items()}
 
+    # 모듈이 initial인 경우
     if(moduleData['module'] == 'initial') :
 
         USE_SAVED_STATE = False
@@ -111,6 +112,7 @@ def runEngin6(moduleData: ModuleModel):
             {"role": "system", "content": prompt_dict['module1']},
             {"role": "user", "content": "(entered classroom)"}
         ]
+        
         chat_turn = 0
         module_index = 1
 
@@ -134,7 +136,7 @@ def runEngin6(moduleData: ModuleModel):
         messages.append({"role": "user", "content": user_response})
         if user_response.lower() in ['exit', 'quit']:
             updateChatStatement(chatId,messages)  
-            return
+            return 'Chat ended.'
 
         if user_response == '':
             user_response = '(said nothing - maybe due to bad internet connection)'
@@ -195,7 +197,3 @@ def runEngin6(moduleData: ModuleModel):
             messages.append({"role": "user", "content": user_response})
         chat_turn += 1
     """
-
-
-
-
