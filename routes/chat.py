@@ -21,7 +21,7 @@ from process import *
 
 chat = APIRouter(prefix='/chat', tags=['chat'])
 
-@chat.post("/create")
+@chat.post("/createChat")
 #async def createChat(userId: int = 0,userName: Union[str, None] = None,teacherName: Union[str, None] = None,teacherPersona: Union[str, None] = None):
 async def createChat(createChatData: CreateChatModel):
     if (
@@ -34,14 +34,14 @@ async def createChat(createChatData: CreateChatModel):
         chatId = setChat(createChatData)
 
         # 초기 AI prompt 가져오기
-        response = runEngin6({'userId':createChatData.userId,'chatId':chatId,'module':'initial','answer':''})
+        # response = runEngin6({'userId':createChatData.userId,'chatId':chatId,'module':'initial','answer':''})
 
         return {"result": True, "chatId": chatId, "response": response}
     
     else:
         return {"result": False}
 
-@chat.post("/module")
+@chat.post("/startModule")
 async def moduleStart(moduleData: ModuleModel):
     if moduleData.userId == 0 or moduleData.chatId == 0 or moduleData.module == "":
         return {"result": False}
@@ -50,7 +50,7 @@ async def moduleStart(moduleData: ModuleModel):
         return {"result": True}
 
 
-@chat.post("/addUserStatement")
+@chat.post("/answerUser")
 async def addUserStatement(moduleData: ModuleModel):
     if (
         moduleData.userId 
