@@ -116,10 +116,12 @@ def runEngin6(moduleData: ModuleModel):
         chat_turn = 0
         module_index = 1
 
-        messages.append({"role": "system", "content": "ChatTurn: {}".format(chat_turn)})
+
         response = getChatGptResponse(messages)
+
         messages.append({"role": "assistant", "content": response})
-        
+        messages.append({"role": "system", "content": "ChatTurn: {}".format(chat_turn)})
+
         updateChatStatement(chatId,messages,chat_turn,module_index)
         return response
 
@@ -145,6 +147,8 @@ def runEngin6(moduleData: ModuleModel):
 
         response = getChatGptResponse(messages)
         messages.append({"role": "assistant", "content": response})
+        
+        #messages.append({"role": "system", "content": "ChatTurn: {}".format(chat_turn)})
 
         updateChatStatement(chatId,messages,chat_turn,current_module)
         return response
