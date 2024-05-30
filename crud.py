@@ -17,28 +17,35 @@ from model import ChatModel, CreateChatModel
 from typing import Union
 import json
 
+
 def setChat(createChatData: CreateChatModel):
     db = Database("mysql")
-    sql = (
-        "INSERT INTO Chat (userId,userName,teacherName,teacherPersona) VALUES('"
-        + str(createChatData.userId)
-        + "','"
-        + createChatData.userName
-        + "','"
-        + createChatData.teacherName
-        + "','"
-        + createChatData.teacherPersona
-        + "')"
-    )
+    sql = f"""
+        INSERT INTO Chat 
+        SET
+            userId          = '{str(createChatData.userId)}',
+            userName        = '{createChatData.userName}',
+            teacherName     = '{createChatData.teacherName}',
+            teacherPersona  = '{createChatData.teacherPersona}'
+    """
     chatId = db.insertDB(sql)
     return chatId
 
 
-def updateChatStatement(chatId: int, messages: Union[str, None] = None, chatTurn: int = 0, currentModule: int = 0):
+def updateChatStatement(
+    chatId: int,
+    messages: Union[str, None] = None,
+    chatTurn: int = 0,
+    currentModule: int = 0,
+):
     db = Database("mysql")
-    sql = ('UPDATE Chat SET messages = \'%s\',chatTurn=%d,currentModule=%d  WHERE id = %d'%(json.dumps(messages).replace("'", "\\'"),chatTurn,currentModule,chatId))
+    sql = (
+        "UPDATE Chat SET messages = '%s',chatTurn=%d,currentModule=%d  WHERE id = %d"
+        % (json.dumps(messages).replace("'", "\\'"), chatTurn, currentModule, chatId)
+    )
     chatId = db.updateDB(sql)
     return chatId
+
 
 def getChat(chatData: ChatModel):
     db = Database("mysql")

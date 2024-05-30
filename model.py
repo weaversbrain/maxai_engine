@@ -26,9 +26,9 @@ class CreateChatModel(BaseModel):
     userName: Optional[str] = None
     teacherName: Optional[str] = None
     teacherPersona: Optional[str] = None
-    messages: Optional[str] = None
-    chatTurn: int = 0
-    currentModule: int = 0
+    # messages: Optional[str] = None
+    # chatTurn: int = 0
+    # currentModule: int = 0
 
 
 class ModuleModel(BaseModel):

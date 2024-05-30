@@ -13,33 +13,39 @@
 """
 
 from fastapi import APIRouter
-#from database import Database
-#from typing import Union
+
+# from database import Database
+# from typing import Union
 from model import CreateChatModel, ModuleModel
 from crud import *
 from process import *
 
-chat = APIRouter(prefix='/chat', tags=['chat'])
+chat = APIRouter(prefix="/chat", tags=["chat"])
+
 
 @chat.post("/createChat")
-#async def createChat(userId: int = 0,userName: Union[str, None] = None,teacherName: Union[str, None] = None,teacherPersona: Union[str, None] = None):
+# async def createChat(userId: int = 0,userName: Union[str, None] = None,teacherName: Union[str, None] = None,teacherPersona: Union[str, None] = None):
 async def createChat(createChatData: CreateChatModel):
+
     if (
-        createChatData.userId 
-        and createChatData.userName
-        and createChatData.teacherName
-        and createChatData.teacherPersona
+        not createChatData.userId
+        or not createChatData.userName
+        or not createChatData.teacherName
+        or not createChatData.teacherPersona
     ):
-        # chat 생성
-        chatId = setChat(createChatData)
+        returnData = {"code": "E", "msg": "필수값 누락"}
+        return returnData
 
-        # 초기 AI prompt 가져오기
-        # response = runEngin6({'userId':createChatData.userId,'chatId':chatId,'module':'initial','answer':''})
+    # 초기 AI prompt 가져오기
+    # response = runEngin6({'userId':createChatData.userId,'chatId':chatId,'module':'initial','answer':''})
 
-        return {"result": True, "chatId": chatId, "response": response}
-    
-    else:
-        return {"result": False}
+    chatId = setChat(createChatData)  # chat 생성
+    returnData = {"code": "Y", "chatId": None}
+    if chatId:
+        returnData["chatId"] = chatId
+
+    return returnData
+
 
 @chat.post("/startModule")
 async def moduleStart(moduleData: ModuleModel):
@@ -53,14 +59,21 @@ async def moduleStart(moduleData: ModuleModel):
 @chat.post("/answerUser")
 async def addUserStatement(moduleData: ModuleModel):
     if (
-        moduleData.userId 
+        moduleData.userId
         and moduleData.chatId
         and moduleData.module
         and moduleData.userMessage
     ):
-        response = runEngin6({'userId':moduleData.userId,'chatId':moduleData.chatId,'module':moduleData.module,'userMessage':moduleData.userMessage})
+        response = runEngin6(
+            {
+                "userId": moduleData.userId,
+                "chatId": moduleData.chatId,
+                "module": moduleData.module,
+                "userMessage": moduleData.userMessage,
+            }
+        )
 
         return {"result": True, "chatId": moduleData.chatId, "response": response}
-    
+
     else:
         return {"result": False}
