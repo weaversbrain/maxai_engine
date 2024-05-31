@@ -1,35 +1,39 @@
 import jinja2
-#from prompt_base import templateList
+from prompt_base import templates
 from openai import OpenAI
 import re
 import os
 from dotenv import load_dotenv
 
-"""
+
 def renderTemplate(module: str, data: dict):
-    templateEnvironment = jinja2.Environment(loader=jinja2.FileSystemLoader(searchpath='./'))
-    renderedTemplate = templateEnvironment.get_template(templateList[module]).render(data)
+    templateEnvironment = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(searchpath="./")
+    )
+    renderedTemplate = templateEnvironment.get_template(templates[module]).render(data)
 
     return renderedTemplate
-"""
 
-load_dotenv() # 환경변수 읽어오기
+
+load_dotenv()  # 환경변수 읽어오기
 
 STREAM = False
 openaiClient = OpenAI(
     api_key=os.getenv("API_KEY1"),
 )
 
-# chatGPT 
-def getChatGptResponse(messages,model_name="gpt-4o-2024-05-13"):    
+
+# chatGPT
+def getChatGptResponse(messages, model_name="gpt-4o-2024-05-13"):
     response = openaiClient.chat.completions.create(
         model=model_name,
         messages=messages,
-        stream=STREAM, 
-        max_tokens=200, 
-        temperature=0.5
+        stream=STREAM,
+        max_tokens=200,
+        temperature=0.5,
     )
     return response.choices[0].message.content.strip()
+
 
 """
 def getChatGptResponse(messages):
@@ -54,8 +58,9 @@ def getChatGptResponse(messages):
     messages.append({"role": "assistant", "content": gpt_response})
 """
 
+
 # HTML tab 제거
 def cleanhtml(raw_html):
-  cleanr = re.compile('<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});')
-  cleantext = re.sub(cleanr, '', raw_html)
-  return cleantext
+    cleanr = re.compile("<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
+    cleantext = re.sub(cleanr, "", raw_html)
+    return cleantext

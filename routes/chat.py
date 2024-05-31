@@ -62,14 +62,14 @@ async def addUserStatement(moduleData: ModuleModel):
         moduleData.userId
         and moduleData.chatId
         and moduleData.module
-        and moduleData.userMessage
+        and moduleData.contents
     ):
         response = runEngin6(
             {
                 "userId": moduleData.userId,
                 "chatId": moduleData.chatId,
                 "module": moduleData.module,
-                "userMessage": moduleData.userMessage,
+                "contents": moduleData.contents,
             }
         )
 

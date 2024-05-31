@@ -32,7 +32,12 @@ class CreateChatModel(BaseModel):
 
 
 class ModuleModel(BaseModel):
-    userId: int = 0
-    chatId: int = 0
-    module: Optional[str] = None
-    userMessage: Optional[str] = None
+    userId: int
+    chatId: int
+    module: str
+    contents: str
+
+
+class HistoryModel(BaseModel):
+    type: Optional[str] = None
+    whereData: Optional[dict] = None
