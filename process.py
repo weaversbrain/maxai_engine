@@ -46,6 +46,8 @@ def runEngin6(moduleData: ModuleModel):
     whereData["chatId"] = moduleData.chatId
     whereData["module"] = moduleData.module
 
+    setHistory(updateData, whereData)
+
     ###########################
     # 3. 히스토리 내역 가져옴
     ###########################
