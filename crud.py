@@ -21,7 +21,7 @@ import json
 def setChat(createChatData: CreateChatModel):
     db = Database("mysql")
     sql = f"""
-        INSERT INTO Chat 
+        INSERT INTO chat 
         SET
             userId          = '{str(createChatData.userId)}',
             userName        = '{createChatData.userName}',
@@ -40,7 +40,7 @@ def updateChatStatement(
 ):
     db = Database("mysql")
     sql = (
-        "UPDATE Chat SET messages = '%s',chatTurn=%d,currentModule=%d  WHERE id = %d"
+        "UPDATE chat SET messages = '%s',chatTurn=%d,currentModule=%d  WHERE id = %d"
         % (json.dumps(messages).replace("'", "\\'"), chatTurn, currentModule, chatId)
     )
     chatId = db.updateDB(sql)
@@ -60,14 +60,44 @@ def getListHistory(type: str, whereData: dict, pageData: Optional[dict] = None):
     if whereData:
         if "chatId" in whereData:
             whereSql += f" AND A.chatId = '{whereData['chatId']}'"
+        if "userId" in whereData:
+            whereSql += f" AND A.userId = '{whereData['userId']}'"
         if "model" in whereData:
             whereSql += f" AND A.model = '{whereData['model']}'"
 
     db = Database("mysql")
 
     if type == "COUNT":
-        sql = f"SELECT count(*) FROM engine6.ChatHistory AS A {whereSql}"
+        sql = f"SELECT count(*) FROM engine6.chatHistory AS A {whereSql}"
         return db.readDB(sql)
     elif type == "LIST":
-        sql = f"SELECT * from engine6.ChatHistory AS A {whereSql} ORDER BY id DESC"
+        sql = f"SELECT * from engine6.chatHistory AS A {whereSql} ORDER BY id DESC"
         return db.readDB(sql, "all")
+
+
+def setHistory(updateData: dict, whereData: dict):
+    updateSql = ""
+    whereSql = " WHERE 1=1"
+
+    if len(updateData) < 1 or len(whereData) < 1:
+        return None
+
+    # update 값 세팅
+    for key, val in updateData.items():
+        updateSql += f"{key} = '{val}',"
+
+    updateSql = updateSql[:-1]  # 마지막 , 제거
+
+    # where 값 세팅
+    for key, val in whereData.items():
+        whereSql += f" AND {key} = '{val}'"
+
+    db = Database("mysql")
+    sql = f"""
+            UPDATE
+                engine6.chatHistory    
+            SET
+                {updateSql}
+            {whereSql}
+    """
+    db.updateDB(sql)
