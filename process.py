@@ -114,22 +114,19 @@ def runEngin6(moduleData: ModuleModel):
     response = openai.chat.completions.create(
         model=config["MODEL_NAME"],
         messages=messages,
-        stream=bool(config["STREAM"]),
+        stream=False,
         max_tokens=200,
         temperature=0.5,
     )
 
-    chunkArr = []
-    for chunk in response:
-        chunk = chunk.choices[0].delta.content
-        if chunk is None:
-            last_token_time = time.time() - start_time
-            break
-        print(chunk, end="", flush=True)
-        chunkArr.append(chunk)
-    gptResponse = "".join(chunkArr)
-    # print(gptResponse)
+    if response:
+        for choice in response.choices:  # 배열 형태로 문장이 여러개 줄 가능성 있음
+            print(choice.message.content)  # 한문장 출력
+
+            # history insert 필요
 
     ###########################
     # 6. 반환
     ###########################
+
+    # 데이터 가공 필요
