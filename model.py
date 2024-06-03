@@ -17,10 +17,6 @@ from typing import Optional
 from datetime import datetime
 
 
-class ChatModel(BaseModel):
-    chatId: int
-
-
 class CreateChatModel(BaseModel):
     userId: int = 0
     userName: Optional[str] = None
@@ -32,10 +28,10 @@ class CreateChatModel(BaseModel):
 
 
 class ModuleModel(BaseModel):
-    userId: int
-    chatId: int
-    module: str
-    contents: str
+    userId: int = 0
+    chatId: int = 0
+    module: Optional[str] = None
+    contents: Optional[str] = None
 
 
 class HistoryModel(BaseModel):

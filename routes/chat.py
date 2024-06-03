@@ -49,7 +49,7 @@ async def createChat(createChatData: CreateChatModel):
 
 @chat.post("/startModule")
 async def moduleStart(moduleData: ModuleModel):
-    if moduleData.userId == 0 or moduleData.chatId == 0 or moduleData.module == "":
+    if not moduleData.userId or not moduleData.chatId or not moduleData.module:
         return {"result": False}
     else:
         runEngin6(moduleData)

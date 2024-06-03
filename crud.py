@@ -47,9 +47,9 @@ def updateChatStatement(
     return chatId
 
 
-def getChat(chatData: ChatModel):
+def getChat(chatId: int):
     db = Database("mysql")
-    sql = f"SELECT * from engine6.Chat WHERE id = {chatData['chatId']}"
+    sql = f"SELECT * from engine6.chat WHERE id = {chatId}"
     chatData = db.readDB(sql)
     return chatData
 

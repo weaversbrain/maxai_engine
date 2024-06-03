@@ -21,23 +21,52 @@ from dotenv import load_dotenv
 from model import CreateChatModel, ModuleModel
 from crud import *
 from utility import *
-import sys
+from dotenv import dotenv_values
+import os
 import time
-import pytz
-import jinja2
-import json
+import sys
+
+# 절대경로
+abspath = os.path.dirname(os.path.abspath(__file__))
+config = dotenv_values(abspath + "/.env")  # 환경변수 읽어오기
 
 
 def runEngin6(moduleData: ModuleModel):
-
+    renderData = {}
     messages = []
+    chatTurn = 0
+
+    if config["MODEL_NAME"].startswith("gpt"):
+        openai = OpenAI(
+            api_key=config["API_KEY1"],
+            # base_url="https://api.openai.com/v1",
+        )
+    else:
+        openai = OpenAI(
+            api_key=config["API_KEY2"],
+            base_url="https://api.deepinfra.com/v1/openai",
+        )
 
     ###########################
-    # 1. initialize 작업
+    # 1. chat Data 가져옴
     ###########################
+    chatInfo = getChat(moduleData.chatId)
+
+    if not chatInfo:
+        return {"code": "E", "msg": "Chat정보가 없습니다."}
+
+    renderData.update(chatInfo)
+    chatTurn = chatInfo["chatTurn"]
 
     ###########################
-    # 2. 현재 모듈의 히스토리 내역 삭제처리
+    # 2. initialize 작업
+    ###########################
+    renderedStr = renderTemplate("INITIAL", renderData)
+    messageData = {"role": "system", "content": renderedStr}
+    messages.append(messageData)
+
+    ###########################
+    # 3. 현재 모듈의 히스토리 내역 삭제처리
     ###########################
     updateData = {}
     updateData["del"] = 1
@@ -49,7 +78,7 @@ def runEngin6(moduleData: ModuleModel):
     setHistory(updateData, whereData)
 
     ###########################
-    # 3. 히스토리 내역 가져옴
+    # 4. 히스토리 내역 가져옴
     ###########################
     historyData = {}
     historyData["chatId"] = moduleData.chatId
@@ -57,15 +86,50 @@ def runEngin6(moduleData: ModuleModel):
 
     historyList = getListHistory("LIST", historyData)  # 지금까지의 히스토리 내역
     for row in historyList:
-        addMessage = {"role": row["speaker"], "content": row["content"]}
-        messages.append(addMessage)
+        speaker = "user"
+
+        if row["speaker"] == "AI":
+            speaker = "assistant"
+
+        messageData = {"role": speaker, "content": row["content"]}
+        messages.append(messageData)
 
     ###########################
     # 4. 현재 모듈 값 세팅
     ###########################
+    renderData.update({"contents": moduleData.contents})
+    renderedStr = renderTemplate(moduleData.module, renderData)
 
-    renderedData = renderTemplate(moduleData.module, {})
+    messageData = {"role": "system", "content": renderedStr}
+    messages.append(messageData)
+    messageData = {"role": "system", "content": "(entered classroom)"}
+    messages.append(messageData)
 
     ###########################
-    # 5. 반환
+    # 5. LLM 처리
+    ###########################
+    messages.append({"role": "system", "content": f"ChatTurn: {chatTurn}"})
+    start_time = time.time()
+
+    response = openai.chat.completions.create(
+        model=config["MODEL_NAME"],
+        messages=messages,
+        stream=bool(config["STREAM"]),
+        max_tokens=200,
+        temperature=0.5,
+    )
+
+    chunkArr = []
+    for chunk in response:
+        chunk = chunk.choices[0].delta.content
+        if chunk is None:
+            last_token_time = time.time() - start_time
+            break
+        print(chunk, end="", flush=True)
+        chunkArr.append(chunk)
+    gptResponse = "".join(chunkArr)
+    # print(gptResponse)
+
+    ###########################
+    # 6. 반환
     ###########################
