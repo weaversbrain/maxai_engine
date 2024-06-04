@@ -112,6 +112,7 @@ def genHistory(createHistoryData: CreateHistoryModel):
             userId           = '{createHistoryData['userId']}',
             speaker          = '{createHistoryData['speaker']}',
             content          = '{createHistoryData['content'].replace("'","\\'")}',
+            message          = '{createHistoryData['message'].replace("'","\\'")}',
             module           = '{createHistoryData['module']}'
     """
     insertId = db.insertDB(sql)
