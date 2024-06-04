@@ -15,7 +15,7 @@
 # from fastapi import FastAPI
 # from prompt_base import *
 from utility import renderTemplate
-from prompt_base import reused_prompt
+from prompt_base import reused_prompt, other_data
 from openai import OpenAI
 import datetime, os
 from dotenv import load_dotenv
@@ -70,6 +70,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     messages.append(messageData)
 
     renderData.update(reused_prompt)
+    renderData.update(other_data)
 
     ###########################
     # 3. 현재 모듈의 히스토리 내역 삭제처리
