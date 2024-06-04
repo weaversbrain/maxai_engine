@@ -125,6 +125,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
             "module": moduleData.module,
             "speaker": "USER",
             "content": moduleData.contents,
+            "message": moduleData.contents,
         }
         genHistory(createHistoryData)
 

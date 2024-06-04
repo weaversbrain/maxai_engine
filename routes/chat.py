@@ -61,5 +61,11 @@ async def addUserStatement(moduleData: ModuleModel):
     if not moduleData.userId or not moduleData.chatId or not moduleData.module:
         return {"result": False}
     else:
+
+        if not moduleData.contents or moduleData.contents == "":
+            moduleData.contents = (
+                "(said nothing - maybe due to bad internet connection)"
+            )
+
         returnData = runEngin6(moduleData, "answer")
         return {"result": True, "data": returnData}
