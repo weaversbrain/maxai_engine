@@ -67,17 +67,17 @@ def cleanHtml(rawHtml):
 
 
 def splitTags(text: str):
-    returnDict = {"type": "text", "text": text}
-
+    returnDict = {"type": "text", "content": text}
+    if "<@hint>" in text:
+        returnDict.update(
+            {"hint": text.split("<@hint>")[1].split("</@hint>")[0].strip()}
+        )
     if "<@user>" in text:
         returnDict = {
             "type": "user",
             "content": text.split("<@user>")[1].split("</@user>")[0].strip(),
         }
-        if "<@hint>" in text:
-            returnDict.update(
-                {"hint": text.split("<@hint>")[1].split("</@hint>")[0].strip()}
-            )
+
     if "<@system>" in text:
         returnDict = {
             "type": "system",

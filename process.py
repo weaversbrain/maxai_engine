@@ -15,6 +15,7 @@
 # from fastapi import FastAPI
 # from prompt_base import *
 from utility import renderTemplate
+from prompt_base import reused_prompt
 from openai import OpenAI
 import datetime, os
 from dotenv import load_dotenv
@@ -67,6 +68,8 @@ def runEngin6(moduleData: ModuleModel, type: str):
     renderedStr = renderTemplate("INITIAL", renderData)
     messageData = {"role": "system", "content": renderedStr}
     messages.append(messageData)
+
+    renderData.update(reused_prompt)
 
     ###########################
     # 3. 현재 모듈의 히스토리 내역 삭제처리
@@ -139,17 +142,25 @@ def runEngin6(moduleData: ModuleModel, type: str):
 
     gptMsgArr = []
     if response:
+        print("-------------------------------")
+        print(response.choices)
+        print("-------------------------------")
         for choice in response.choices:  # 배열 형태로 문장이 여러개 줄 가능성 있음
             gptMsgArr.append(choice.message.content)  # 한문장 출력
 
     returnData = []
     for msg in gptMsgArr:
-        statementArr = msg.split("\n\n")
+        print("-------------------------------")
+        print(msg)
+        print("-------------------------------")
+        msg = msg.replace("\n\n", "\n")
+        statementArr = msg.split("\n")
 
         for statement in statementArr:
+            print(statement)
             splitData = splitTags(statement)
             returnData.append(splitData)
-            if splitData["type"] == "user":
+            if splitData["type"] == "user" or splitData["type"] == "text":
                 createHistoryData = {
                     "chatId": moduleData.chatId,
                     "userId": moduleData.userId,
@@ -158,6 +169,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
                     "content": splitData["content"],
                 }
                 genHistory(createHistoryData)
+        print("--------------------------------")
 
     ###########################
     # 7. 턴 업데이트
