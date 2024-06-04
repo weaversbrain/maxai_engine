@@ -97,6 +97,8 @@ def runEngin6(moduleData: ModuleModel, type: str):
 
         if row["speaker"] == "AI":
             speaker = "assistant"
+        elif row["speaker"] == "SYSTEM":
+            speaker = "system"
 
         messageData = {"role": speaker, "content": row["content"]}
         messages.append(messageData)
@@ -160,15 +162,22 @@ def runEngin6(moduleData: ModuleModel, type: str):
             print(statement)
             splitData = splitTags(statement)
             returnData.append(splitData)
-            if splitData["type"] == "user" or splitData["type"] == "text":
-                createHistoryData = {
-                    "chatId": moduleData.chatId,
-                    "userId": moduleData.userId,
-                    "module": moduleData.module,
-                    "speaker": "AI",
-                    "content": splitData["content"],
-                }
-                genHistory(createHistoryData)
+
+            if splitData["type"] == "user":
+                speaker = "AI"
+            elif splitData["type"] == "system":
+                speaker = "SYSTEM"
+            else:
+                speaker = "AI"
+
+            createHistoryData = {
+                "chatId": moduleData.chatId,
+                "userId": moduleData.userId,
+                "module": moduleData.module,
+                "speaker": speaker,
+                "content": splitData["content"],
+            }
+            genHistory(createHistoryData)
         print("--------------------------------")
 
     ###########################
