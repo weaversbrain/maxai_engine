@@ -99,7 +99,7 @@ def getListHistory(type: str, whereData: dict, pageData: Optional[dict] = None):
         sql = f"SELECT count(*) FROM engine6.chatHistory AS A {whereSql}"
         return db.readDB(sql)
     elif type == "LIST":
-        sql = f"SELECT * from engine6.chatHistory AS A {whereSql} ORDER BY id DESC"
+        sql = f"SELECT * from engine6.chatHistory AS A {whereSql} ORDER BY id ASC"
         return db.readDB(sql, "all")
 
 
