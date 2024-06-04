@@ -29,6 +29,7 @@ class CreateHistoryModel(BaseModel):
     userId: int = 0
     speaker: Optional[str] = None
     content: Optional[str] = None
+    message: Optional[str] = None
     module: Optional[str] = None
 
 
