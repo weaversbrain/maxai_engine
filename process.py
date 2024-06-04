@@ -18,7 +18,7 @@ from utility import renderTemplate
 from openai import OpenAI
 import datetime, os
 from dotenv import load_dotenv
-from model import CreateChatModel, ModuleModel
+from model import *
 from crud import *
 from utility import *
 from dotenv import dotenv_values
@@ -31,7 +31,7 @@ abspath = os.path.dirname(os.path.abspath(__file__))
 config = dotenv_values(abspath + "/.env")  # 환경변수 읽어오기
 
 
-def runEngin6(moduleData: ModuleModel):
+def runEngin6(moduleData: ModuleModel, type: str):
     renderData = {}
     messages = []
     chatTurn = 0
@@ -56,7 +56,10 @@ def runEngin6(moduleData: ModuleModel):
         return {"code": "E", "msg": "Chat정보가 없습니다."}
 
     renderData.update(chatInfo)
-    chatTurn = chatInfo["chatTurn"]
+    if not chatInfo["chatTurn"]:
+        chatTurn = 1
+    else:
+        chatTurn = chatInfo["chatTurn"] + 1
 
     ###########################
     # 2. initialize 작업
@@ -68,14 +71,15 @@ def runEngin6(moduleData: ModuleModel):
     ###########################
     # 3. 현재 모듈의 히스토리 내역 삭제처리
     ###########################
-    updateData = {}
-    updateData["del"] = 1
+    if type == "module":
+        updateData = {}
+        updateData["del"] = 1
 
-    whereData = {}
-    whereData["chatId"] = moduleData.chatId
-    whereData["module"] = moduleData.module
+        whereData = {}
+        whereData["chatId"] = moduleData.chatId
+        whereData["module"] = moduleData.module
 
-    setHistory(updateData, whereData)
+        setHistory(updateData, whereData)
 
     ###########################
     # 4. 히스토리 내역 가져옴
@@ -106,7 +110,21 @@ def runEngin6(moduleData: ModuleModel):
     messages.append(messageData)
 
     ###########################
-    # 5. LLM 처리
+    # 5. USER Answer 처리
+    ###########################
+    if type == "answer":
+        messages.append({"role": "user", "content": moduleData.contents})
+        createHistoryData = {
+            "chatId": moduleData.chatId,
+            "userId": moduleData.userId,
+            "module": moduleData.module,
+            "speaker": "USER",
+            "content": moduleData.contents,
+        }
+        genHistory(createHistoryData)
+
+    ###########################
+    # 6. LLM 처리
     ###########################
     messages.append({"role": "system", "content": f"ChatTurn: {chatTurn}"})
     start_time = time.time()
@@ -119,14 +137,41 @@ def runEngin6(moduleData: ModuleModel):
         temperature=0.5,
     )
 
+    gptMsgArr = []
     if response:
         for choice in response.choices:  # 배열 형태로 문장이 여러개 줄 가능성 있음
-            print(choice.message.content)  # 한문장 출력
+            gptMsgArr.append(choice.message.content)  # 한문장 출력
 
-            # history insert 필요
+    returnData = []
+    for msg in gptMsgArr:
+        statementArr = msg.split("\n\n")
+
+        for statement in statementArr:
+            splitData = splitTags(statement)
+            returnData.append(splitData)
+            if splitData["type"] == "user":
+                createHistoryData = {
+                    "chatId": moduleData.chatId,
+                    "userId": moduleData.userId,
+                    "module": moduleData.module,
+                    "speaker": "AI",
+                    "content": splitData["content"],
+                }
+                genHistory(createHistoryData)
 
     ###########################
-    # 6. 반환
+    # 7. 턴 업데이트
     ###########################
+    updateData = {}
+    updateData["chatTurn"] = chatTurn
 
+    whereData = {}
+    whereData["id"] = moduleData.chatId
+
+    setChat(updateData, whereData)
+
+    ###########################
+    # 8. 반환
+    ###########################
+    return returnData
     # 데이터 가공 필요

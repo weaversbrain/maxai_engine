@@ -22,9 +22,14 @@ class CreateChatModel(BaseModel):
     userName: Optional[str] = None
     teacherName: Optional[str] = None
     teacherPersona: Optional[str] = None
-    # messages: Optional[str] = None
-    # chatTurn: int = 0
-    # currentModule: int = 0
+
+
+class CreateHistoryModel(BaseModel):
+    chatId: int = 0
+    userId: int = 0
+    speaker: Optional[str] = None
+    content: Optional[str] = None
+    module: Optional[str] = None
 
 
 class ModuleModel(BaseModel):

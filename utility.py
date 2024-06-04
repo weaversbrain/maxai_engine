@@ -60,7 +60,33 @@ def getChatGptResponse(messages):
 
 
 # HTML tab 제거
-def cleanhtml(raw_html):
-    cleanr = re.compile("<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
-    cleantext = re.sub(cleanr, "", raw_html)
-    return cleantext
+def cleanHtml(rawHtml):
+    cleanRex = re.compile("<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
+    cleanText = re.sub(cleanRex, "", rawHtml)
+    return cleanText
+
+
+def splitTags(text: str):
+    returnDict = {"type": "text", "text": text}
+
+    if "<@user>" in text:
+        returnDict = {
+            "type": "user",
+            "content": text.split("<@user>")[1].split("</@user>")[0].strip(),
+        }
+        if "<@hint>" in text:
+            returnDict.update(
+                {"hint": text.split("<@hint>")[1].split("</@hint>")[0].strip()}
+            )
+    if "<@system>" in text:
+        returnDict = {
+            "type": "system",
+            "content": text.split("<@system>")[1].split("</@system>")[0].strip(),
+        }
+    if "<@assistant>" in text:
+        returnDict = {
+            "type": "assistant",
+            "content": text.split("<@assistant>")[1].split("</@assistant>")[0].strip(),
+        }
+
+    return returnDict

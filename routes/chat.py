@@ -39,7 +39,7 @@ async def createChat(createChatData: CreateChatModel):
     # 초기 AI prompt 가져오기
     # response = runEngin6({'userId':createChatData.userId,'chatId':chatId,'module':'initial','answer':''})
 
-    chatId = setChat(createChatData)  # chat 생성
+    chatId = genChat(createChatData)  # chat 생성
     returnData = {"code": "Y", "chatId": None}
     if chatId:
         returnData["chatId"] = chatId
@@ -52,28 +52,14 @@ async def moduleStart(moduleData: ModuleModel):
     if not moduleData.userId or not moduleData.chatId or not moduleData.module:
         return {"result": False}
     else:
-        runEngin6(moduleData)
-        return {"result": True}
+        returnData = runEngin6(moduleData, "module")
+        return {"result": True, "data": returnData}
 
 
 @chat.post("/answerUser")
 async def addUserStatement(moduleData: ModuleModel):
-    if (
-        moduleData.userId
-        and moduleData.chatId
-        and moduleData.module
-        and moduleData.contents
-    ):
-        response = runEngin6(
-            {
-                "userId": moduleData.userId,
-                "chatId": moduleData.chatId,
-                "module": moduleData.module,
-                "contents": moduleData.contents,
-            }
-        )
-
-        return {"result": True, "chatId": moduleData.chatId, "response": response}
-
-    else:
+    if not moduleData.userId or not moduleData.chatId or not moduleData.module:
         return {"result": False}
+    else:
+        returnData = runEngin6(moduleData, "answer")
+        return {"result": True, "data": returnData}
