@@ -100,7 +100,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
         elif row["speaker"] == "SYSTEM":
             speaker = "system"
 
-        messageData = {"role": speaker, "content": row["content"]}
+        messageData = {"role": speaker, "content": row["message"]}
         messages.append(messageData)
 
     ###########################
@@ -176,6 +176,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
                 "module": moduleData.module,
                 "speaker": speaker,
                 "content": splitData["content"],
+                "message": splitData["message"],
             }
             genHistory(createHistoryData)
         print("--------------------------------")
