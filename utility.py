@@ -80,7 +80,7 @@ def splitTags(text: str):
                 {
                     "type": f"{type}",
                     "content": cleanText,
-                    "message": f"<@{type}>{cleanText}</@{type}",
+                    "message": f"<@{type}>{cleanText}</@{type}>",
                 }
             )
             cnt = cnt + 1
