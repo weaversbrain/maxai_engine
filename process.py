@@ -152,6 +152,15 @@ def runEngin6(moduleData: ModuleModel, type: str):
         for choice in response.choices:  # 배열 형태로 문장이 여러개 줄 가능성 있음
             gptMsgArr.append(choice.message.content)  # 한문장 출력
 
+        # collected_messages = []
+        # for chunk in response:
+        #     chunk_message = chunk.choices[0].delta.content
+        #     if chunk_message is None:
+        #         break
+        #     print(chunk_message, end="", flush=True)
+        #     collected_messages.append(chunk_message)
+        # msg = "".join(collected_messages)
+
     returnData = []
     for msg in gptMsgArr:
         print("-------------------------------")
@@ -163,25 +172,29 @@ def runEngin6(moduleData: ModuleModel, type: str):
         for statement in statementArr:
             print(statement)
             splitData = splitTags(statement)
-            returnData.append(splitData)
 
-            if splitData["type"] == "user":
-                speaker = "AI"
-            elif splitData["type"] == "system":
-                speaker = "SYSTEM"
-            else:
-                speaker = "AI"
+            for data in splitData:
+                print("--------------------------------")
+                print(data)
+                returnData.append(data)
 
-            createHistoryData = {
-                "chatId": moduleData.chatId,
-                "userId": moduleData.userId,
-                "module": moduleData.module,
-                "speaker": speaker,
-                "content": splitData["content"],
-                "message": splitData["message"],
-            }
-            genHistory(createHistoryData)
-        print("--------------------------------")
+                if data["type"] == "user":
+                    speaker = "AI"
+                elif data["type"] == "system":
+                    speaker = "SYSTEM"
+                else:
+                    speaker = "AI"
+
+                createHistoryData = {
+                    "chatId": moduleData.chatId,
+                    "userId": moduleData.userId,
+                    "module": moduleData.module,
+                    "speaker": speaker,
+                    "content": data["content"],
+                    "message": data["message"],
+                }
+                genHistory(createHistoryData)
+            print("--------------------------------")
 
     ###########################
     # 7. 턴 업데이트

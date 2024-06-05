@@ -83,7 +83,7 @@ def getChat(chatId: int):
 
 
 def getListHistory(type: str, whereData: dict, pageData: Optional[dict] = None):
-    whereSql = " WHERE 1=1"
+    whereSql = " WHERE 1=1 AND del = 0"
 
     if whereData:
         if "chatId" in whereData:

@@ -67,31 +67,74 @@ def cleanHtml(rawHtml):
 
 
 def splitTags(text: str):
-    returnDict = {"type": "text", "content": text}
-    if "<@hint>" in text:
-        returnDict = {
-            "type": "hint",
-            "content": text.split("<@hint>")[1].split("</@hint>")[0].strip(),
-            "message": text,
-        }
-    elif "<@user>" in text:
-        returnDict = {
-            "type": "user",
-            "content": text.split("<@user>")[1].split("</@user>")[0].strip(),
-            "message": text,
-        }
-    elif "<@system>" in text:
-        returnDict = {
-            "type": "system",
-            "content": text.split("<@system>")[1].split("</@system>")[0].strip(),
-            "message": text,
-        }
-    elif "<@assistant>" in text:
-        returnDict = {
-            "type": "assistant",
-            "content": text.split("<@assistant>")[1].split("</@assistant>")[0].strip(),
-            "message": text,
-        }
-    else:
-        returnDict = {"type": "user", "content": text, "message": text}
-    return returnDict
+    returnData = []
+
+    typeArr = ["hint", "user", "system", "assistant"]
+
+    cnt = 0
+
+    for type in typeArr:
+        if f"<@{type}>" in text:
+            cleanText = text.split(f"<@{type}>")[1].split(f"</@{type}>")[0].strip()
+            returnData.append(
+                {
+                    "type": f"{type}",
+                    "content": cleanText,
+                    "message": f"<@{type}>{cleanText}</@{type}",
+                }
+            )
+            cnt = cnt + 1
+
+    if cnt == 0:
+        returnData.append(
+            {
+                "type": "hint",
+                "content": text,
+                "message": text,
+            }
+        )
+
+    # if "<@hint>" in text:
+    #     returnData.append(
+    #         {
+    #             "type": "hint",
+    #             "content": text.split("<@hint>")[1].split("</@hint>")[0].strip(),
+    #             "message": text,
+    #         }
+    #     )
+    # if "<@user>" in text:
+    #     returnData.append(
+    #         {
+    #             "type": "user",
+    #             "content": text.split("<@user>")[1].split("</@user>")[0].strip(),
+    #             "message": text,
+    #         }
+    #     )
+    # if "<@system>" in text:
+    #     returnData.append(
+    #         {
+    #             "type": "system",
+    #             "content": text.split("<@system>")[1].split("</@system>")[0].strip(),
+    #             "message": text,
+    #         }
+    #     )
+    # if "<@assistant>" in text:
+    #     returnData.append(
+    #         {
+    #             "type": "assistant",
+    #             "content": text.split("<@assistant>")[1]
+    #             .split("</@assistant>")[0]
+    #             .strip(),
+    #             "message": text,
+    #         }
+    #     )
+    # if "<@" not in text:
+    #     returnData.append(
+    #         {
+    #             "type": "hint",
+    #             "content": text,
+    #             "message": text,
+    #         }
+    #     )
+
+    return returnData
