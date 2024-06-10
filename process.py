@@ -15,6 +15,7 @@
 # from fastapi import FastAPI
 # from prompt_base import *
 from utility import renderTemplate
+from utils import *
 from prompt_base import reused_prompt, other_data
 from openai import OpenAI
 import datetime, os
@@ -47,6 +48,8 @@ def runEngin6(moduleData: ModuleModel, type: str):
             api_key=config["API_KEY2"],
             base_url="https://api.deepinfra.com/v1/openai",
         )
+
+    saveFile = "chat.json"
 
     ###########################
     # 1. chat Data 가져옴
@@ -164,9 +167,9 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     # messages.append({"role": "system", "content": f"ChatTurn: {chatTurn}"})
     start_time = time.time()
-    print("----------------------- MESSAGES -----------------------------------------")
-    print(messages)
-    print("----------------------- MESSAGES -----------------------------------------")
+    # print("----------------------- MESSAGES -----------------------------------------")
+    # print(messages)
+    # print("----------------------- MESSAGES -----------------------------------------")
 
     response = openai.chat.completions.create(
         model=config["MODEL_NAME"],
@@ -174,7 +177,6 @@ def runEngin6(moduleData: ModuleModel, type: str):
         stream=False,
         max_tokens=200,
         temperature=0.5,
-        n=1,
     )
 
     gptMsgArr = []
@@ -245,6 +247,13 @@ def runEngin6(moduleData: ModuleModel, type: str):
         escapeListMessages(messages),
         chatTurn,
         moduleData.module,
+    )
+
+    save_state(
+        filename=saveFile,
+        messages=messages,
+        chat_turn=chatTurn,
+        current_module=moduleData.module,
     )
 
     ###########################
