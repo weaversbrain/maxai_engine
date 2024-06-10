@@ -94,47 +94,24 @@ def splitTags(text: str):
             }
         )
 
-    # if "<@hint>" in text:
-    #     returnData.append(
-    #         {
-    #             "type": "hint",
-    #             "content": text.split("<@hint>")[1].split("</@hint>")[0].strip(),
-    #             "message": text,
-    #         }
-    #     )
-    # if "<@user>" in text:
-    #     returnData.append(
-    #         {
-    #             "type": "user",
-    #             "content": text.split("<@user>")[1].split("</@user>")[0].strip(),
-    #             "message": text,
-    #         }
-    #     )
-    # if "<@system>" in text:
-    #     returnData.append(
-    #         {
-    #             "type": "system",
-    #             "content": text.split("<@system>")[1].split("</@system>")[0].strip(),
-    #             "message": text,
-    #         }
-    #     )
-    # if "<@assistant>" in text:
-    #     returnData.append(
-    #         {
-    #             "type": "assistant",
-    #             "content": text.split("<@assistant>")[1]
-    #             .split("</@assistant>")[0]
-    #             .strip(),
-    #             "message": text,
-    #         }
-    #     )
-    # if "<@" not in text:
-    #     returnData.append(
-    #         {
-    #             "type": "hint",
-    #             "content": text,
-    #             "message": text,
-    #         }
-    #     )
-
     return returnData
+
+
+def escapeText(text):
+    return text.replace("'", "\\'").replace('"', '\\"')
+
+
+def escapeListMessages(messages):
+    escapedMessages = []
+    if messages:
+        for message in messages:
+            tmpDict = {
+                "role": message["role"],
+                "content": message["content"]
+                .replace("'", "\\'")
+                .replace('"', '\\"')
+                .replace("\n", ""),
+            }
+            escapedMessages.append(tmpDict)
+
+    return escapedMessages

@@ -66,7 +66,10 @@ def runEngin6(moduleData: ModuleModel, type: str):
     # 2. initialize 작업
     ###########################
     renderedStr = renderTemplate("INITIAL", renderData)
-    messageData = {"role": "system", "content": renderedStr}
+    messageData = {
+        "role": "system",
+        "content": renderedStr,
+    }
     messages.append(messageData)
 
     renderData.update(reused_prompt)
@@ -86,34 +89,60 @@ def runEngin6(moduleData: ModuleModel, type: str):
         setHistory(updateData, whereData)
 
     ###########################
-    # 4. 히스토리 내역 가져옴
+    # 과거 히스토리 내역 가져옴
     ###########################
     historyData = {}
     historyData["chatId"] = moduleData.chatId
     historyData["userId"] = moduleData.userId
+    historyData["notModule"] = moduleData.module
 
     historyList = getListHistory("LIST", historyData)  # 지금까지의 히스토리 내역
     for row in historyList:
         speaker = "user"
 
-        if row["speaker"] == "AI":
+        if row["speaker"] == "AI" or row["speaker"] == "SYSTEM":
             speaker = "assistant"
-        elif row["speaker"] == "SYSTEM":
-            speaker = "system"
 
-        messageData = {"role": speaker, "content": row["message"]}
+        messageData = {
+            "role": speaker,
+            "content": row["message"],
+        }
         messages.append(messageData)
 
     ###########################
-    # 4. 현재 모듈 값 세팅
+    # 현재 모듈 값 세팅
     ###########################
     renderData.update({"contents": moduleData.contents})
     renderedStr = renderTemplate(moduleData.module, renderData)
 
-    messageData = {"role": "system", "content": renderedStr}
+    messageData = {
+        "role": "system",
+        "content": renderedStr,
+    }
     messages.append(messageData)
-    messageData = {"role": "system", "content": "(entered classroom)"}
+    messageData = {"role": "user", "content": "(entered classroom)"}
     messages.append(messageData)
+
+    ###########################
+    # 히스토리 내역 가져옴
+    ###########################
+    historyData = {}
+    historyData["chatId"] = moduleData.chatId
+    historyData["userId"] = moduleData.userId
+    historyData["module"] = moduleData.module
+
+    historyList = getListHistory("LIST", historyData)  # 지금까지의 히스토리 내역
+    for row in historyList:
+        speaker = "user"
+
+        if row["speaker"] == "AI" or row["speaker"] == "SYSTEM":
+            speaker = "assistant"
+
+        messageData = {
+            "role": speaker,
+            "content": row["message"],
+        }
+        messages.append(messageData)
 
     ###########################
     # 5. USER Answer 처리
@@ -125,16 +154,19 @@ def runEngin6(moduleData: ModuleModel, type: str):
             "userId": moduleData.userId,
             "module": moduleData.module,
             "speaker": "USER",
-            "content": moduleData.contents,
-            "message": moduleData.contents,
+            "content": escapeText(moduleData.contents),
+            "message": escapeText(moduleData.contents),
         }
         genHistory(createHistoryData)
 
     ###########################
     # 6. LLM 처리
     ###########################
-    messages.append({"role": "system", "content": f"ChatTurn: {chatTurn}"})
+    # messages.append({"role": "system", "content": f"ChatTurn: {chatTurn}"})
     start_time = time.time()
+    print("----------------------- MESSAGES -----------------------------------------")
+    print(messages)
+    print("----------------------- MESSAGES -----------------------------------------")
 
     response = openai.chat.completions.create(
         model=config["MODEL_NAME"],
@@ -142,6 +174,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
         stream=False,
         max_tokens=200,
         temperature=0.5,
+        n=1,
     )
 
     gptMsgArr = []
@@ -151,15 +184,6 @@ def runEngin6(moduleData: ModuleModel, type: str):
         print("-------------------------------")
         for choice in response.choices:  # 배열 형태로 문장이 여러개 줄 가능성 있음
             gptMsgArr.append(choice.message.content)  # 한문장 출력
-
-        # collected_messages = []
-        # for chunk in response:
-        #     chunk_message = chunk.choices[0].delta.content
-        #     if chunk_message is None:
-        #         break
-        #     print(chunk_message, end="", flush=True)
-        #     collected_messages.append(chunk_message)
-        # msg = "".join(collected_messages)
 
     returnData = []
     for msg in gptMsgArr:
@@ -174,38 +198,54 @@ def runEngin6(moduleData: ModuleModel, type: str):
             splitData = splitTags(statement)
 
             for data in splitData:
+                messageRole = "assistant"
+                speaker = "AI"
+
                 print("--------------------------------")
                 print(data)
                 returnData.append(data)
 
                 if data["type"] == "user":
                     speaker = "AI"
+                    messageRole = "assistant"
                 elif data["type"] == "system":
-                    speaker = "SYSTEM"
-                else:
                     speaker = "AI"
+                    messageRole = "assistant"
 
                 createHistoryData = {
                     "chatId": moduleData.chatId,
                     "userId": moduleData.userId,
                     "module": moduleData.module,
                     "speaker": speaker,
-                    "content": data["content"],
-                    "message": data["message"],
+                    "content": escapeText(data["content"]),
+                    "message": escapeText(data["message"]),
                 }
                 genHistory(createHistoryData)
+                messages.append(
+                    {
+                        "role": messageRole,
+                        "content": data["message"],
+                    }
+                )
             print("--------------------------------")
 
     ###########################
     # 7. 턴 업데이트
     ###########################
-    updateData = {}
-    updateData["chatTurn"] = chatTurn
+    # updateData = {}
+    # updateData["chatTurn"] = chatTurn
 
-    whereData = {}
-    whereData["id"] = moduleData.chatId
+    # whereData = {}
+    # whereData["id"] = moduleData.chatId
 
-    setChat(updateData, whereData)
+    # setChat(updateData, whereData)
+
+    setChatStatement(
+        moduleData.chatId,
+        escapeListMessages(messages),
+        chatTurn,
+        moduleData.module,
+    )
 
     ###########################
     # 8. 반환

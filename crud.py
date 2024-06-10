@@ -16,18 +16,19 @@ from database import Database
 from model import *
 from typing import Union
 import json
+from utility import *
 
 
 def genChat(createChatData: CreateChatModel):
     db = Database("mysql")
-    sql = f"""
+    sql = f'''
         INSERT INTO chat 
         SET
             userId          = '{str(createChatData.userId)}',
             userName        = '{createChatData.userName}',
             teacherName     = '{createChatData.teacherName}',
             teacherPersona  = '{createChatData.teacherPersona.replace("'","\\'")}'
-    """
+    '''
     chatId = db.insertDB(sql)
     return chatId
 
@@ -68,8 +69,13 @@ def setChatStatement(
 ):
     db = Database("mysql")
     sql = (
-        "UPDATE chat SET messages = '%s',chatTurn=%d,currentModule=%d  WHERE id = %d"
-        % (json.dumps(messages).replace("'", "\\'"), chatTurn, currentModule, chatId)
+        """UPDATE chat SET messages = '%s',chatTurn=%d,currentModule='%s'  WHERE id = %d"""
+        % (
+            escapeText(json.dumps(messages, ensure_ascii=False)),
+            chatTurn,
+            currentModule,
+            chatId,
+        )
     )
     chatId = db.updateDB(sql)
     return chatId
@@ -90,8 +96,10 @@ def getListHistory(type: str, whereData: dict, pageData: Optional[dict] = None):
             whereSql += f" AND A.chatId = '{whereData['chatId']}'"
         if "userId" in whereData:
             whereSql += f" AND A.userId = '{whereData['userId']}'"
-        if "model" in whereData:
-            whereSql += f" AND A.model = '{whereData['model']}'"
+        if "module" in whereData:
+            whereSql += f" AND A.module = '{whereData['module']}'"
+        if "notModule" in whereData:
+            whereSql += f" AND A.module != '{whereData['notModule']}'"
 
     db = Database("mysql")
 
@@ -111,8 +119,8 @@ def genHistory(createHistoryData: CreateHistoryModel):
             chatId           = '{createHistoryData['chatId']}',
             userId           = '{createHistoryData['userId']}',
             speaker          = '{createHistoryData['speaker']}',
-            content          = '{createHistoryData['content'].replace("'","\\'")}',
-            message          = '{createHistoryData['message'].replace("'","\\'")}',
+            content          = '{createHistoryData['content']}',
+            message          = '{createHistoryData['message']}',
             module           = '{createHistoryData['module']}'
     """
     insertId = db.insertDB(sql)
