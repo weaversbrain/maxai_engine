@@ -49,7 +49,13 @@ def runEngin6(moduleData: ModuleModel, type: str):
             base_url="https://api.deepinfra.com/v1/openai",
         )
 
+    ###########################
+    # 초기 세팅
+    ###########################
     saveFile = f"log/chat_{moduleData.chatId}.json"
+
+    renderData.update(reused_prompt)
+    renderData.update(other_data)
 
     ###########################
     # 1. chat Data 가져옴
@@ -74,9 +80,6 @@ def runEngin6(moduleData: ModuleModel, type: str):
         "content": renderedStr,
     }
     messages.append(messageData)
-
-    renderData.update(reused_prompt)
-    renderData.update(other_data)
 
     ###########################
     # 3. 현재 모듈의 히스토리 내역 삭제처리
@@ -165,7 +168,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     # 6. LLM 처리
     ###########################
-    # messages.append({"role": "system", "content": f"ChtTaurn: {chatTurn}"})
+    messages.append({"role": "system", "content": f"ChtTaurn: {chatTurn}"})
     start_time = time.time()
     # print(json.dumps(messages, ensure_ascii=False))
     response = openai.chat.completions.create(
@@ -174,59 +177,50 @@ def runEngin6(moduleData: ModuleModel, type: str):
         stream=False,
         max_tokens=200,
         temperature=0.5,
+        n=1,
     )
 
     gptMsgArr = []
+
+    # gpt 응답 배열로 받음
     if response:
-        print("-------------------------------")
-        # print(response.choices)
-        print("-------------------------------")
         for choice in response.choices:  # 배열 형태로 문장이 여러개 줄 가능성 있음
             gptMsgArr.append(choice.message.content)  # 한문장 출력
 
-    returnData = []
+    returnData = []  # 리턴 데이터
+
+    # 반복 하면서 한문장 덩어리씩 추출
     for msg in gptMsgArr:
-        print("-------------------------------")
-        # print(msg)
-        print("-------------------------------")
-        msg = msg.replace("\n\n", "\n")
-        statementArr = msg.split("\n")
+
+        messageRole = "assistant"
+        speaker = "AI"
+
+        # db 입려 부분
+        createHistoryData = {
+            "chatId": moduleData.chatId,
+            "userId": moduleData.userId,
+            "module": moduleData.module,
+            "speaker": speaker,
+            "content": escapeText(msg),
+            "message": escapeText(msg),
+        }
+        genHistory(createHistoryData)
+
+        messages.append(
+            {
+                "role": messageRole,
+                "content": msg,
+            }
+        )
+
+        tmpData = msg.replace("\n\n", "\n")
+        statementArr = tmpData.split("\n")
 
         for statement in statementArr:
-            print(statement)
             splitData = splitTags(statement)
 
             for data in splitData:
-                messageRole = "assistant"
-                speaker = "AI"
-
-                print("--------------------------------")
-                # print(data)
                 returnData.append(data)
-
-                if data["type"] == "user":
-                    speaker = "AI"
-                    messageRole = "assistant"
-                elif data["type"] == "system":
-                    speaker = "AI"
-                    messageRole = "assistant"
-
-                createHistoryData = {
-                    "chatId": moduleData.chatId,
-                    "userId": moduleData.userId,
-                    "module": moduleData.module,
-                    "speaker": speaker,
-                    "content": escapeText(data["content"]),
-                    "message": escapeText(data["message"]),
-                }
-                genHistory(createHistoryData)
-                messages.append(
-                    {
-                        "role": messageRole,
-                        "content": data["message"],
-                    }
-                )
-            print("--------------------------------")
 
     ###########################
     # 7. chat 업데이트
