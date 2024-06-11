@@ -10,6 +10,7 @@ templates = {
     "FREE_TALK": "./prompts/FreeTalk.jinja",
     "WRAP_UP": "./prompts/WrapUpClose.jinja",
 }
+
 reused_prompt = {
     "recastPrompt": """
     For each of the user's message, check if it's grammatically correct and natural. If not, naturally recast the user's message to provide an IMPLICIT corrective feedback. Do not directly correct the user's mistake. If appropriate, ask a simple and short follow-up question for each response.
