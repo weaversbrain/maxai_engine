@@ -126,8 +126,10 @@ def runEngin6(moduleData: ModuleModel, type: str):
         "content": renderedStr,
     }
     messages.append(messageData)
-    messageData = {"role": "user", "content": "(entered classroom)"}
-    messages.append(messageData)
+
+    if moduleData.module == "SMALL_TALK":
+        messageData = {"role": "user", "content": "(entered classroom)"}
+        messages.append(messageData)
 
     ###########################
     # 히스토리 내역 가져옴
