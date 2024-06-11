@@ -8,7 +8,7 @@ SWAGGER_HEADERS = {
     "title": "MaxAI Engine6",
     "description": "## SWAGGER - MaxAI Engine6.",
 }
- 
+
 app = FastAPI(
     swagger_ui_parameters={
         "deepLinking": True,
@@ -25,12 +25,7 @@ app = FastAPI(
 app.include_router(chat)
 
 # Set all CORS enabled origins
-origins = [
-    "http://192.168.123.51",
-    "http://192.168.123.51:8080",
-    "http://localhost",
-    "http://localhost:8080",
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,

@@ -61,7 +61,7 @@ def setChat(updateData: dict, whereData: dict):
     db.updateDB(sql)
 
 
-def setChatStatement(
+def setChatInfo(
     chatId: int,
     messages: Union[str, None] = None,
     chatTurn: int = 0,

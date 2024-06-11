@@ -49,7 +49,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
             base_url="https://api.deepinfra.com/v1/openai",
         )
 
-    saveFile = "chat.json"
+    saveFile = f"log/chat_{moduleData.chatId}.json"
 
     ###########################
     # 1. chat Data 가져옴
@@ -165,12 +165,9 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     # 6. LLM 처리
     ###########################
-    # messages.append({"role": "system", "content": f"ChatTurn: {chatTurn}"})
+    # messages.append({"role": "system", "content": f"ChtTaurn: {chatTurn}"})
     start_time = time.time()
-    # print("----------------------- MESSAGES -----------------------------------------")
-    # print(messages)
-    # print("----------------------- MESSAGES -----------------------------------------")
-
+    # print(json.dumps(messages, ensure_ascii=False))
     response = openai.chat.completions.create(
         model=config["MODEL_NAME"],
         messages=messages,
@@ -182,7 +179,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     gptMsgArr = []
     if response:
         print("-------------------------------")
-        print(response.choices)
+        # print(response.choices)
         print("-------------------------------")
         for choice in response.choices:  # 배열 형태로 문장이 여러개 줄 가능성 있음
             gptMsgArr.append(choice.message.content)  # 한문장 출력
@@ -190,7 +187,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     returnData = []
     for msg in gptMsgArr:
         print("-------------------------------")
-        print(msg)
+        # print(msg)
         print("-------------------------------")
         msg = msg.replace("\n\n", "\n")
         statementArr = msg.split("\n")
@@ -204,7 +201,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
                 speaker = "AI"
 
                 print("--------------------------------")
-                print(data)
+                # print(data)
                 returnData.append(data)
 
                 if data["type"] == "user":
@@ -232,23 +229,16 @@ def runEngin6(moduleData: ModuleModel, type: str):
             print("--------------------------------")
 
     ###########################
-    # 7. 턴 업데이트
+    # 7. chat 업데이트
     ###########################
-    # updateData = {}
-    # updateData["chatTurn"] = chatTurn
-
-    # whereData = {}
-    # whereData["id"] = moduleData.chatId
-
-    # setChat(updateData, whereData)
-
-    setChatStatement(
+    setChatInfo(
         moduleData.chatId,
         escapeListMessages(messages),
         chatTurn,
         moduleData.module,
     )
 
+    # 디버깅용 chat.json 파일 저장
     save_state(
         filename=saveFile,
         messages=messages,
