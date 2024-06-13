@@ -36,7 +36,7 @@ config = dotenv_values(abspath + "/.env")  # 환경변수 읽어오기
 def runEngin6(moduleData: ModuleModel, type: str):
     renderData = {}
     messages = []
-    chatTurn = 0
+    totalChatTurn = 0
 
     if config["MODEL_NAME"].startswith("gpt"):
         openai = OpenAI(
@@ -57,19 +57,26 @@ def runEngin6(moduleData: ModuleModel, type: str):
     renderData.update(reused_prompt)
     renderData.update(other_data)
 
+    chatInfo = getChat(moduleData.chatId)  # chat Info
+    moduleInfo = getModuleInfo(moduleData.moduleId)  # module Info
+    lessonInfo = getLessonInfo(chatInfo["lessonId"])
+
+    todayExpression = lessonInfo["subject"]
+
+    renderData.update({"todayExpression": todayExpression})
+
     ###########################
     # 1. chat Data 가져옴
     ###########################
-    chatInfo = getChat(moduleData.chatId)
 
     if not chatInfo:
         return {"code": "E", "msg": "Chat정보가 없습니다."}
 
     renderData.update(chatInfo)
     if not chatInfo["chatTurn"]:
-        chatTurn = 1
+        totalChatTurn = 0
     else:
-        chatTurn = chatInfo["chatTurn"] + 1
+        totalChatTurn = chatInfo["chatTurn"]
 
     ###########################
     # 2. initialize 작업
@@ -90,7 +97,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
 
         whereData = {}
         whereData["chatId"] = moduleData.chatId
-        whereData["module"] = moduleData.module
+        whereData["module"] = moduleInfo["module"]
 
         setHistory(updateData, whereData)
 
@@ -99,8 +106,8 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     historyData = {}
     historyData["chatId"] = moduleData.chatId
-    historyData["userId"] = moduleData.userId
-    historyData["notModule"] = moduleData.module
+    historyData["userId"] = chatInfo["userId"]
+    historyData["notModule"] = moduleInfo["module"]
 
     historyList = getListHistory("LIST", historyData)  # 지금까지의 히스토리 내역
     for row in historyList:
@@ -118,8 +125,9 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     # 현재 모듈 값 세팅
     ###########################
-    renderData.update({"contents": moduleData.contents})
-    renderedStr = renderTemplate(moduleData.module, renderData)
+    moduleInfo = getModuleInfo(moduleData.moduleId)
+    renderData.update({"contents": moduleInfo["content"]})
+    renderedStr = renderTemplate(moduleInfo["module"], renderData)
 
     messageData = {
         "role": "system",
@@ -127,19 +135,31 @@ def runEngin6(moduleData: ModuleModel, type: str):
     }
     messages.append(messageData)
 
-    if moduleData.module == "SMALL_TALK":
-        messageData = {"role": "user", "content": "(entered classroom)"}
-        messages.append(messageData)
+    if totalChatTurn == 0:
+        # messageData = {"role": "user", "content": "(entered classroom)"}
+        # messages.append(messageData)
+
+        createHistoryData = {
+            "chatId": moduleData.chatId,
+            "userId": chatInfo["userId"],
+            "module": moduleInfo["module"],
+            "speaker": "USER",
+            "content": "(entered classroom)",
+            "message": "(entered classroom)",
+            "chatTurn": 0,
+        }
+        genHistory(createHistoryData)
 
     ###########################
     # 히스토리 내역 가져옴
     ###########################
     historyData = {}
     historyData["chatId"] = moduleData.chatId
-    historyData["userId"] = moduleData.userId
-    historyData["module"] = moduleData.module
+    historyData["userId"] = chatInfo["userId"]
+    historyData["module"] = moduleInfo["module"]
 
     historyList = getListHistory("LIST", historyData)  # 지금까지의 히스토리 내역
+    curChatTurn = 0
     for row in historyList:
         speaker = "user"
 
@@ -152,25 +172,31 @@ def runEngin6(moduleData: ModuleModel, type: str):
         }
         messages.append(messageData)
 
+        if row["chatTurn"]:
+            curChatTurn = row["chatTurn"]
+
     ###########################
     # 5. USER Answer 처리
     ###########################
     if type == "answer":
-        messages.append({"role": "user", "content": moduleData.contents})
+        totalChatTurn = totalChatTurn + 1
+        curChatTurn = curChatTurn + 1
+        messages.append({"role": "user", "content": moduleData.userAnswer})
         createHistoryData = {
             "chatId": moduleData.chatId,
-            "userId": moduleData.userId,
-            "module": moduleData.module,
+            "userId": chatInfo["userId"],
+            "module": moduleInfo["module"],
             "speaker": "USER",
-            "content": escapeText(moduleData.contents),
-            "message": escapeText(moduleData.contents),
+            "content": escapeText(moduleData.userAnswer),
+            "message": escapeText(moduleData.userAnswer),
+            "chatTurn": curChatTurn,
         }
         genHistory(createHistoryData)
 
     ###########################
     # 6. LLM 처리
     ###########################
-    messages.append({"role": "system", "content": f"ChtTaurn: {chatTurn}"})
+    messages.append({"role": "system", "content": f"ChatTurn: {curChatTurn}"})
     start_time = time.time()
     # print(json.dumps(messages, ensure_ascii=False))
     response = openai.chat.completions.create(
@@ -192,37 +218,43 @@ def runEngin6(moduleData: ModuleModel, type: str):
     returnData = []  # 리턴 데이터
 
     # 반복 하면서 한문장 덩어리씩 추출
-    for msg in gptMsgArr:
+    if gptMsgArr:
 
-        messageRole = "assistant"
-        speaker = "AI"
+        totalChatTurn = totalChatTurn + 1
+        curChatTurn = curChatTurn + 1
 
-        # db 입려 부분
-        createHistoryData = {
-            "chatId": moduleData.chatId,
-            "userId": moduleData.userId,
-            "module": moduleData.module,
-            "speaker": speaker,
-            "content": escapeText(msg),
-            "message": escapeText(msg),
-        }
-        genHistory(createHistoryData)
+        for msg in gptMsgArr:
 
-        messages.append(
-            {
-                "role": messageRole,
-                "content": msg,
+            messageRole = "assistant"
+            speaker = "AI"
+
+            # db 입려 부분
+            createHistoryData = {
+                "chatId": moduleData.chatId,
+                "userId": chatInfo["userId"],
+                "module": moduleInfo["module"],
+                "speaker": speaker,
+                "content": escapeText(msg),
+                "message": escapeText(msg),
+                "chatTurn": curChatTurn,
             }
-        )
+            genHistory(createHistoryData)
 
-        tmpData = msg.replace("\n\n", "\n")
-        statementArr = tmpData.split("\n")
+            messages.append(
+                {
+                    "role": messageRole,
+                    "content": msg,
+                }
+            )
 
-        for statement in statementArr:
-            splitData = splitTags(statement)
+            tmpData = msg.replace("\n\n", "\n")
+            statementArr = tmpData.split("\n")
 
-            for data in splitData:
-                returnData.append(data)
+            for statement in statementArr:
+                splitData = splitTags(statement)
+
+                for data in splitData:
+                    returnData.append(data)
 
     ###########################
     # 7. chat 업데이트
@@ -230,16 +262,17 @@ def runEngin6(moduleData: ModuleModel, type: str):
     setChatInfo(
         moduleData.chatId,
         escapeListMessages(messages),
-        chatTurn,
-        moduleData.module,
+        totalChatTurn,
+        moduleInfo["module"],
     )
 
     # 디버깅용 chat.json 파일 저장
     save_state(
         filename=saveFile,
         messages=messages,
-        chat_turn=chatTurn,
-        current_module=moduleData.module,
+        total_chat_turn=totalChatTurn,
+        cur_module_chat_turn=curChatTurn,
+        current_module=moduleInfo["module"],
     )
 
     ###########################

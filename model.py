@@ -19,6 +19,7 @@ from datetime import datetime
 
 class CreateChatModel(BaseModel):
     userId: int = 0
+    lessonId: int = 0
     userName: Optional[str] = None
     teacherName: Optional[str] = None
     teacherPersona: Optional[str] = None
@@ -31,15 +32,19 @@ class CreateHistoryModel(BaseModel):
     content: Optional[str] = None
     message: Optional[str] = None
     module: Optional[str] = None
+    chatTurn: int = 0
 
 
 class ModuleModel(BaseModel):
-    userId: int = 0
     chatId: int = 0
-    module: Optional[str] = None
-    contents: Optional[str] = None
+    moduleId: int = 0
+    userAnswer: Optional[str] = None
 
 
 class HistoryModel(BaseModel):
     type: Optional[str] = None
     whereData: Optional[dict] = None
+
+
+class ModuleListData(BaseModel):
+    lessonId: int = 0

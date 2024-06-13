@@ -24,6 +24,7 @@ def genChat(createChatData: CreateChatModel):
     sql = f'''
         INSERT INTO chat 
         SET
+            lessonId        = '{str(createChatData.lessonId)}',
             userId          = '{str(createChatData.userId)}',
             userName        = '{createChatData.userName}',
             teacherName     = '{createChatData.teacherName}',
@@ -121,7 +122,8 @@ def genHistory(createHistoryData: CreateHistoryModel):
             speaker          = '{createHistoryData['speaker']}',
             content          = '{createHistoryData['content']}',
             message          = '{createHistoryData['message']}',
-            module           = '{createHistoryData['module']}'
+            module           = '{createHistoryData['module']}',
+            chatTurn         = '{createHistoryData['chatTurn']}'
     """
     insertId = db.insertDB(sql)
     return insertId
@@ -153,3 +155,53 @@ def setHistory(updateData: dict, whereData: dict):
             {whereSql}
     """
     db.updateDB(sql)
+
+
+def getLessonInfo(lessonId: int):
+    db = Database("mysql")
+
+    sql = f"""
+        SELECT 
+            *
+        FROM
+            maxai_b2b_cms.maxai_lesson
+        WHERE
+            seq = '{lessonId}'
+    """
+    lessonInfo = db.readDB(sql)
+
+    return lessonInfo
+
+
+def getLessonModuleList(lessonId: int):
+    db = Database("mysql")
+
+    sql = f"""
+        SELECT 
+            A.*, B.code AS moduleName
+        FROM
+            maxai_b2b_cms.maxai_lesson_module AS A
+            INNER JOIN maxai_b2b_cms.maxai_code AS B ON B.seq = A.cSeq
+        WHERE
+            A.lSeq = {lessonId}
+            AND A.del = 0
+    """
+    moduleList = db.readDB(sql, "all")
+
+    return moduleList
+
+
+def getModuleInfo(moduleId: int):
+    db = Database("mysql")
+
+    sql = f"""
+        SELECT 
+            *
+        FROM
+            maxai_b2b_cms.maxai_module_part
+        WHERE
+            lmSeq = '{moduleId}'
+    """
+    lessonInfo = db.readDB(sql)
+
+    return lessonInfo

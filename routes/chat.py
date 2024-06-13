@@ -28,7 +28,8 @@ chat = APIRouter(prefix="/chat", tags=["chat"])
 async def createChat(createChatData: CreateChatModel):
 
     if (
-        not createChatData.userId
+        not createChatData.lessonId
+        or not createChatData.userId
         or not createChatData.userName
         or not createChatData.teacherName
         or not createChatData.teacherPersona
@@ -49,7 +50,7 @@ async def createChat(createChatData: CreateChatModel):
 
 @chat.post("/startModule")
 async def moduleStart(moduleData: ModuleModel):
-    if not moduleData.userId or not moduleData.chatId or not moduleData.module:
+    if not moduleData.moduleId or not moduleData.chatId:
         return {"result": False}
     else:
         returnData = runEngin6(moduleData, "module")
@@ -58,14 +59,20 @@ async def moduleStart(moduleData: ModuleModel):
 
 @chat.post("/answerUser")
 async def addUserStatement(moduleData: ModuleModel):
-    if not moduleData.userId or not moduleData.chatId or not moduleData.module:
+    if not moduleData.moduleId or not moduleData.chatId:
         return {"result": False}
     else:
 
-        if not moduleData.contents or moduleData.contents == "":
-            moduleData.contents = (
+        if not moduleData.userAnswer or moduleData.userAnswer == "":
+            moduleData.userAnswer = (
                 "(said nothing - maybe due to bad internet connection)"
             )
 
         returnData = runEngin6(moduleData, "answer")
         return {"result": True, "data": returnData}
+
+
+@chat.post("/moduleList")
+async def moduleList(moduleListData: ModuleListData):
+
+    return getLessonModuleList(moduleListData.lessonId)
