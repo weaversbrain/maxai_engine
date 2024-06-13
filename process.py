@@ -187,7 +187,6 @@ def runEngin6(moduleData: ModuleModel, type: str):
             "userId": chatInfo["userId"],
             "module": moduleInfo["module"],
             "speaker": "USER",
-            "content": escapeText(moduleData.userAnswer),
             "message": escapeText(moduleData.userAnswer),
             "chatTurn": curChatTurn,
         }
@@ -234,7 +233,6 @@ def runEngin6(moduleData: ModuleModel, type: str):
                 "userId": chatInfo["userId"],
                 "module": moduleInfo["module"],
                 "speaker": speaker,
-                "content": escapeText(msg),
                 "message": escapeText(msg),
                 "chatTurn": curChatTurn,
             }

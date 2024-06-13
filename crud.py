@@ -120,7 +120,6 @@ def genHistory(createHistoryData: CreateHistoryModel):
             chatId           = '{createHistoryData['chatId']}',
             userId           = '{createHistoryData['userId']}',
             speaker          = '{createHistoryData['speaker']}',
-            content          = '{createHistoryData['content']}',
             message          = '{createHistoryData['message']}',
             module           = '{createHistoryData['module']}',
             chatTurn         = '{createHistoryData['chatTurn']}'
