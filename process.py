@@ -247,8 +247,10 @@ def runEngin6(moduleData: ModuleModel, type: str):
             tmpData = msg.replace("\n\n", "\n")
             statementArr = tmpData.split("\n")
 
+            print(statementArr)
+
             for statement in statementArr:
-                splitData = extractTags(statement)
+                splitData = extractTagsFromSentence(statement)
 
                 for data in splitData:
                     returnData.append(data)

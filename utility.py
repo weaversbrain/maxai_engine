@@ -44,19 +44,59 @@ def cleanHtml(rawHtml):
     return cleanText
 
 
-def extractTags(string: str):
-    pattern = r"<@(system|hint|user|assistant)>(.*?)<\/@\1>"
-    matches = re.findall(pattern, string)
-    tag_info = []
+# def extractTags(string: str):
+#     pattern = r"<@(system|hint|user|assistant|question|translation)>(.*?)<\/@\1>"
+#     matches = re.findall(pattern, string)
+#     tag_info = []
+#     for match in matches:
+#         tag_info.append(
+#             {
+#                 "type": match[0],
+#                 "content": match[1],
+#                 "message": f"<@{match[0]}>{match[1]}</@{match[0]}>",
+#             }
+#         )
+#     return tag_info
+
+
+def extractTags(data):
+    # 정규 표현식 패턴
+    pattern = r"<@(.*?)(:\{(.*?)\})?>(.*?)</@(.*?)(:\{(.*?)\})?[}>]*>"
+
+    # 데이터에서 패턴에 맞는 모든 부분을 찾아 리스트로 반환
+    matches = re.findall(pattern, data, re.DOTALL)
+
+    extracted_data = []
     for match in matches:
-        tag_info.append(
-            {
-                "type": match[0],
-                "content": match[1],
-                "message": f"<@{match[0]}>{match[1]}</@{match[0]}>",
-            }
-        )
-    return tag_info
+        open_tag_type = match[0].strip()
+        open_tag_flags = match[2].split(",") if match[2] else []
+        content = match[3].strip()
+
+        close_tag_type = match[4].strip()
+        close_tag_flags = match[6].split(",") if match[6] else []
+
+        findData = {
+            "type": open_tag_type,
+            "content": content,
+        }
+
+        # {}에 포함된 내용 추가
+        if open_tag_flags:
+            findData["prevFlag"] = open_tag_flags
+        if close_tag_flags:
+            findData["nextFlag"] = close_tag_flags
+
+        extracted_data.append(findData)
+
+    return extracted_data
+
+
+def extractTagsFromSentence(sentence):
+    all_tags = []
+    tags_in_sentence = extractTags(sentence)
+    all_tags.extend(tags_in_sentence)
+
+    return all_tags
 
 
 def escapeText(text):
