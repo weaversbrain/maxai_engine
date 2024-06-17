@@ -3,13 +3,13 @@ import pytz
 
 
 templates = {
-    "initial": "./prompts/InitialSystemPrompt.jinja",
-    "module1": "./prompts/PersonalizedSmallTalk.jinja",
-    "module2": "./prompts/PrevSessionReview.jinja",
-    "module3": "./prompts/Dialogue.jinja",
-    "module4": "./prompts/Roleplaying.jinja",
-    "module5": "./prompts/FreeTalk.jinja",
-    "module6": "./prompts/WrapUpClose.jinja",
+    "INITIAL": "./prompts/InitialSystemPrompt.jinja",
+    "E6_SMALL_TALK": "./prompts/PersonalizedSmallTalk.jinja",
+    "E6_REVIEW_LAST_CLASS": "./prompts/PrevSessionReview.jinja",
+    "E6_DIALOGUE": "./prompts/Dialogue.jinja",
+    "E6_ROLEPLAYING": "./prompts/Roleplaying.jinja",
+    "E6_TALK_MORE": "./prompts/FreeTalk.jinja",
+    "E6_WRAP_UP": "./prompts/WrapUpClose.jinja",
 }
 reused_prompt = {
     "recastPrompt": """
