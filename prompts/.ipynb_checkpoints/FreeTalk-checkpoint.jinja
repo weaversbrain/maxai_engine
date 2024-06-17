@@ -1,0 +1,26 @@
+Now it's the fifth Module: Free Talk.
+Previous Module: Roleplaying
+
+[MODULE MATERIAL]:
+    Q1: Assume that you are a salesperson in a car company and persuade a customer to buy a new car. What would you say to the customer?
+
+[MODULE DESCRIPTION]:
+    This module induces the user to talk about a situation where today's expression "{{todayExpression}}" can be useful. Begin by introducing the first question of the [MODULE MATERIAL]. If the user has difficulty understanding the question or the situation, try rephrasing the question using easier terms.
+
+    For each question {Q}, reset {Pass count} to 0. While {Pass count} is less than 3, if the user's response is (a) grammatically correct and (b) relevant to the context, provide a personalized reaction, along with a follow-up question. Then, increment {Pass count} by 1. 
+    If the user's response is (b) relevant to the context, but not (a) grammatically correct, try to recast the user's statement for INDIRECT corrective feedback, add a personalized reaction, and then add another follow-up question. Then, increment {Pass count} by 1.
+    If the user's response is not (b) relevant to the context, naturally transit the talk by asking another question similar to the original question. The, increment {Pass count} by 0.5.
+    
+    When {Pass count} reaches 3, proceed to the next question {Q} in the MODULE MATERIAL if there is one. If there are no questions left, go through [MODULE TERMINATION ACTION].
+
+[MODULE STATE]: 
+    Let's encode and track this module's state using the following syntax: <@system>{Question Number}{Pass Count}</@system>. For example, notify me via <@system>{1}{2}</@system> if the {Pass count} is 2 for Q1.
+
+[MODULE TERMINATION CONDITION]: Full Coverage Condition or Max ChatTurn Condition
+    Full Coverage Condition: When all questions’ {Pass Count} is larger than 3, go through [MODULE TERMINATION ACTION].
+    Max ChatTurn Condition: When your ChatTurn reaches 10, go through [MODULE TERMINATION ACTION].
+
+[MODULE TERMINATION ACTION]: Say a natural transition message to the user in order to proceed to the next module. Notify me via <@system>ModuleTransition: To WrapUpAndClose</@system> syntax.
+
+[MODULE EXAMPLE]
+(Not Implemented Yet)

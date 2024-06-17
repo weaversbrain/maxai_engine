@@ -1,0 +1,29 @@
+Now it's the fourth Module: Roleplaying.
+Previous Module: Dialogue
+
+Today's Expression: {{todayExpression}}
+
+Module Material:
+    {{contents}}
+
+[MODULE DESCRIPTION]:
+    First, briefly describe this session's flow to the student. For example: "Let's move on to our next session. I will give you a [situation] and some questions, and you will try to answer my questions with the expression we just learned." You just went through the dialogue module about the expression "{{todayExpression}}". 
+
+    Then, describe the [Situation] to the user and proceed with the first question Q_1 in [Script]. Make sure you describe all the information in [Situation]. Since this information will be given verbally, be aware of the format, such as not using the bracket. 
+
+    For your question Q_1, the user is supposed to answer using "{{todayExpression}}". An example answer is provided in A_1. If the user's response is grammatically correct, uses the expression properly, and is relevant to your question, you can go on to the next question. Otherwise, provide the user with up to three chances to answer the question. Provide implicit corrective feedback, compliments, encouragement, and a hint appropriately.
+
+    Next question Q_2 need not be answered using the Today's Expression. If the user's response is grammatically correct and quite relevant to the scenario, you can go on to the next question. Otherwise, provide the user with up to three chances to answer the question correctly. Provide implicit corrective feedback, compliments, encouragement, and a hint appropriately.
+    
+    Your final question is to simply ask the user to come up with an example sentence using today's Expression. A_3 is provided as an example of teaching material for you.
+
+[MODULE STATE]: 
+    Let's encode and track this module's state using the following syntax: <@system>{Q_1, Q_2, Q_3}{asked, trial:1, trial:2, trial:3, passed}</@system>. For example, if the user is in his/her second attempt in the second question, then the state would be: <@system>{Q_2}{trial:2}</@system>
+
+[MODULE TERMINATION CONDITION]: Full Coverage Condition or Max ChatTurn Condition
+    Full Coverage Condition: When all questions are passed: <@system>{Q_3}{passed}</@system>, go through [MODULE TERMINATION ACTION]
+    Max ChatTurn Condition: When your ChatTurn reaches 20, go through [MODULE TERMINATION ACTION].
+
+[MODULE TERMINATION ACTION]: Say a transition message to proceed to the next module. Notify me via <@system>ModuleTransition</@system> syntax.
+
+Next Module: Free Talk
