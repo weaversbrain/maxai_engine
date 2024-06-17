@@ -4,6 +4,8 @@ from openai import OpenAI
 import re
 import os
 from dotenv import load_dotenv
+import json
+import tiktoken
 
 
 def renderTemplate(module: str, data: dict):
@@ -35,30 +37,6 @@ def getChatGptResponse(messages, model_name="gpt-4o-2024-05-13"):
     return response.choices[0].message.content.strip()
 
 
-"""
-def getChatGptResponse(messages):
-    # GENERATE AI RESPONSE
-    messages.append({"role": "system", "content": "ChatTurn: {}".format(chat_turn)})
-    start_time = time.time()
-    response = openaiClient.chat.completions.create(
-        model=MODEL_NAME, messages=messages, stream=STREAM, max_tokens=200, temperature=0.5)
-
-    first_token_time = time.time() - start_time
-    collected_messages = []
-    print("\nAI:")
-
-    for chunk in response:
-        chunk_message = chunk.choices[0].delta.content
-        if chunk_message is None:
-            last_token_time = time.time() - start_time
-            break
-        print(chunk_message, end = "", flush=True)
-        collected_messages.append(chunk_message)
-    gpt_response = ''.join(collected_messages)
-    messages.append({"role": "assistant", "content": gpt_response})
-"""
-
-
 # HTML tab 제거
 def cleanHtml(rawHtml):
     cleanRex = re.compile("<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
@@ -66,35 +44,19 @@ def cleanHtml(rawHtml):
     return cleanText
 
 
-def splitTags(text: str):
-    returnData = []
-
-    typeArr = ["hint", "user", "system", "assistant"]
-
-    cnt = 0
-
-    for type in typeArr:
-        if f"<@{type}>" in text:
-            cleanText = text.split(f"<@{type}>")[1].split(f"</@{type}>")[0].strip()
-            returnData.append(
-                {
-                    "type": f"{type}",
-                    "content": cleanText,
-                    "message": f"<@{type}>{cleanText}</@{type}>",
-                }
-            )
-            cnt = cnt + 1
-
-    if cnt == 0:
-        returnData.append(
+def extractTags(string: str):
+    pattern = r"<@(system|hint|user|assistant)>(.*?)<\/@\1>"
+    matches = re.findall(pattern, string)
+    tag_info = []
+    for match in matches:
+        tag_info.append(
             {
-                "type": "hint",
-                "content": text,
-                "message": text,
+                "type": match[0],
+                "content": match[1],
+                "message": f"<@{match[0]}>{match[1]}</@{match[0]}>",
             }
         )
-
-    return returnData
+    return tag_info
 
 
 def escapeText(text):
@@ -115,3 +77,90 @@ def escapeListMessages(messages):
             escapedMessages.append(tmpDict)
 
     return escapedMessages
+
+
+def extractBraces(string):
+    flags = []
+    start_index = 0
+    for i, char in enumerate(string):
+        if char == "{":
+            start_index = i
+        elif char == "}":
+            flag = string[start_index + 1 : i]
+            if flag:
+                flags.append(flag)
+    if not flags:
+        return [string]  # 빈 배열일 때 문자열 자체를 반환합니다.
+    return flags
+
+
+def save_state(filename, messages, **kwargs):
+    with open(filename, "w") as file:
+        state = {"messages": messages}
+        state.update(kwargs)
+        json.dump(state, file)
+
+
+def load_state(filename="chat_state.json"):
+    try:
+        with open(filename, "r") as file:
+            state = json.load(file)
+        return state
+    except FileNotFoundError:
+        return FileNotFoundError
+
+
+def str2numtoken(message_list, model_name="gpt-4-turbo"):
+    if isinstance(message_list, str):
+        input_str = message_list
+    else:
+        input_str = "\n".join(
+            [y for message in message_list for x, y in message.items()]
+        )
+    enc = tiktoken.encoding_for_model(model_name)
+    num_tokens = len(enc.encode(input_str))
+    return num_tokens
+
+
+def token2cost(num_tokens, model_name="gpt-4-turbo", mode="input"):
+    assert mode in ("input", "output")
+    return (
+        {
+            "gpt-4-turbo": (10, 30),
+            "gpt-3.5-turbo": (0.5, 1.5),
+            "meta-llama/Meta-Llama-3-70B-Instruct": (0.6, 0.8),
+            "gpt-4o-2024-05-13": (5, 15),
+            "gpt-4o": (5, 15),
+        }[model_name][0 if mode == "input" else 1]
+        * num_tokens
+        / (1e6)
+    )
+
+
+def process_tags(text):
+    system_pattern = r"(<@system>.*?</@system>)"
+    hint_pattern = r"(<@hint>.*?</@hint>)"
+    for tag in [
+        hint_pattern,
+        # system_pattern,
+    ]:
+        matches = re.findall(tag, text)
+        for match in matches:
+            text = text.replace(match, "")
+    user_pattern = r"(<@user>.*?</@user>)"
+    matches = re.findall(user_pattern, text)
+    for match in matches:
+        text = text.replace(match, match.replace("<@user>", "").replace("</@user>", ""))
+    return text
+
+
+def formatResponseData(msg):
+    returnData = []
+    tmpData = msg.replace("\n\n", "\n")
+    statementArr = tmpData.split("\n")
+
+    for statement in statementArr:
+        splitData = extractTags(statement)
+        returnData.extend(splitData)
+
+    return returnData

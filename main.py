@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+
 
 from routes.chat import chat
 
@@ -34,3 +36,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# if __name__ == "__main__":
+#     uvicorn.run("main:app", host="192.168.123.101", port=8000, reload=True)

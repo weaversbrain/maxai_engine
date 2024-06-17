@@ -14,8 +14,7 @@
 
 # from fastapi import FastAPI
 # from prompt_base import *
-from utility import renderTemplate
-from utils import *
+from utility import *
 from prompt_base import reused_prompt, other_data
 from openai import OpenAI
 import datetime, os
@@ -249,7 +248,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
             statementArr = tmpData.split("\n")
 
             for statement in statementArr:
-                splitData = splitTags(statement)
+                splitData = extractTags(statement)
 
                 for data in splitData:
                     returnData.append(data)
