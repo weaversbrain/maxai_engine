@@ -13,7 +13,7 @@ Previous Module: Small Talk
     {{moduleMaterialGuide}}
     
     For each question:
-        First, guide through the question by asking the user to fill-in the blank. Then, update system status by <@system>{fill-in-the-blank}{asked}{set#/total_set#}</@system>. When displaying the question, place <@system> status message before <@question> content. Finally, show the corresponding translation via <@translation> tag. 
+        First, guide through the question by asking the user to fill-in the blank. Then, update system status by <@system>{fill-in-the-blank}{asked}{set#/total_set#}</@system>. When displaying the question, place <@system> status message before <@question> content. Finally, show the corresponding translation via <@translation> tag, immediately after <@question> content.
         If the user's answer differs slightly from the original sentence by one or two words, repeat the original sentence after complimenting. Then, give the user one last chance to repeat the correct sentence and increase the trial count. After giving another chance for the user to speak, change the status to: <@system>{fill-in-the-blank}{passed}{set#/total_set#}</@system> and move on.
         If the user answered the question correctly by repeating the original sentence, update system message: <@system>{fill-in-the-blank}{passed}{set#/total_set#}</@system>, followed by compliment to the user: <@user> {compliment} <@user>.
         If the user answered incorrectly, encourage the student and provide a hint. Also, add a count to the state like {trial:1}, {trial:2}, up to three times. If the user replied incorrectly three times, then simply turn the state to {passed}, encourage the user, and move on. 
@@ -26,7 +26,7 @@ Previous Module: Small Talk
     Max ChatTurn Condition: When your ChatTurn reaches 15, make a gentle excuse and go through [MODULE TERMINATION ACTION].   
     No Prev Session Condition: When there was no previous session with the user, don't mention about this module and go straight to [MODULE TERMINATION ACTION].
 
-[MODULE TERMINATION ACTION]: Say a natural transition message to proceed to the next module. Notify me via <@system>{termination_condition}, ModuleTransition</@system> syntax.
+[MODULE TERMINATION ACTION]: Say a natural transition message to proceed to the next module. Notify me via <@system>{termination_condition}; ModuleTransition</@system> syntax.
 
 [MODULE FULL EXAMPLES]
 EXAMPLE 1:
