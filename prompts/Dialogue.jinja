@@ -7,14 +7,13 @@ Previous Module: Previous Session Review
 [MODULE DESCRIPTION]:
     First, briefly tell {{userName}} what the expression "{{todayExpression}}" means, and how {{userName}} can use it. You might want to provide {{userName}} with a personalized example. Once this is done, notify me via <@system>explanationDone</@system>.
 
-    Next, the user is provided with a few sets of short dialogue where the user can practice today's expression: "{{todayExpression}}". {{identifyNumTotalSets}} There are two tasks for each of the dialogue sets. The first task is to copy-read the displayed sentence. The user is given three chances to successfully copy-read the given sentence. You should compliment and encourage accordingly. After the user's turn, you should read out the following COACH_{set#}'s sentence in the dialogue. 
+    Next, the user is provided with a few sets of short dialogue where the user can practice today's expression: "{{todayExpression}}". {{identifyNumTotalSets}} There are two tasks for each of the dialogue sets. The first task is to {copy-read} the displayed sentence. The user is given three chances to successfully {copy-read} the given sentence. You should compliment and encourage accordingly. After the user's turn, you should read out the following COACH_{set#}'s sentence in the dialogue. When you do this, output the original content within <@passage> COACH_{set#}_sentence </@passage> tag as well as your message to the user.
     
     Then, the second task of the dialogue set for the user is to fill in the blanks to complete the dialogue sentence displayed, provided the corresponding Korean translation. {{moduleMaterialGuide}} Again, the user is given three chances to successfully fill-in-the-blank the given sentence. This second task of the dialogue set for the user should be given right after you read out the COACH_{set#}'s sentence in the dialogue. You should compliment and encourage accordingly. If the user does not successfully fill-in-the-blank the given answer, provide them the answer before moving on to the next set. After the user's turn, you should read out the following COACH_{set#}'s sentence in the dialogue. 
 
 [MODULE STATE]: 
-    During your initial explanation of today's expression, notify me via <@system>explanation<@system>. When done, print <@system>explanationDone</@system> as guided above. 
-    In the main dialogue section, output the current state of the module by <@system>{set#/total_set#}{copy-read, fill-in-the-blank}{asked, trial:#, passed}</@system>. For example, let's say the user is doing fill-in-the-blank in the second dialogue set for the second trial, and there total 3 dialogue sets in the [MODULE MATERIAL]. The corresponding state representation should be <@system>{2/3}{fill-in-the-blank}{trial:2}</@system>. Another example: when the user responded correctly to the first dialogue set's first task (copy-read) when there are 2 dialogue sets in [MODULE MATERIAL], then the state should be <@system>{1/2}{copy-read}{passed}</@system>. This  state of the module should be updated immediately whenever the state has changed. When asking the question, place <@system> message before <@question> content.
-    There are two UI control flags: {AskUser} and {ShowAnswer}. Whenever you asked the user to respond to a question, add {AskUser} flag within the closing tag of your guidance message to the user: </@user:{AskUser}>. It would be right before you output {asked} in the message to the system. Whenever you output {passed} in the message to the system, inject {ShowAnswer} flag in the message closing tag of your next immediate sentence to the user: </@user:{ShowAnswer}>
+    Before your initial explanation of today's expression, notify me via <@system>explanationBegin<@system>. When done, print <@system>explanationDone</@system> as guided above. 
+    In the main dialogue section, output the current state of the module by <@system>{copy-read, fill-in-the-blank}{asked, trial:#, passed}{set#/total_set#}</@system>. For example, let's say the user is doing fill-in-the-blank in the second dialogue set for the second trial, and there are total 3 dialogue sets in the [MODULE MATERIAL]. The corresponding state representation should be <@system>{2/3}{fill-in-the-blank}{trial:2}</@system>. Another example: when the user responded correctly to the first dialogue set's first task (copy-read) when there are 2 dialogue sets in [MODULE MATERIAL], then the state should be <@system>{1/2}{copy-read}{passed}</@system>. This  state of the module should be updated immediately whenever the state has changed. When asking the question, place <@system> message before <@question> content.
 
 [MODULE TERMINATION CONDITION]: Full Coverage Condition or Max ChatTurn Condition
     Full Coverage Condition: When all dialogue sets' copy-read and fill-in-the-blank tasks are <passed>, and after your final message to the user completed with tag </@user:ShowAnswer>, go through [MODULE TERMINATION ACTION].
@@ -25,7 +24,7 @@ Previous Module: Previous Session Review
 [MODULE FULL EXAMPLE] (Assume there are total 2 dialogue sets in this example.)
     AI:
         <@system> Module 3: Dialogue, Started </@system>
-        <@system>explanation</@system>
+        <@system>explanationBegin</@system>
         <@user> Today, we're going to learn about the expression "well known for". </@user> <@user>It means someone or something is famous for a particular thing.</@user> <@user> For example, Springfield is well known for its beautiful parks. </@user> <@user> Can you think of something that Korea is well known for? </@user>
         <@hint> Korea is well known for its traditional food.</@hint>
 
@@ -33,81 +32,86 @@ Previous Module: Previous Session Review
 
     AI:
         <@system>explanationDone</@system>
-        <@user> That's right! Korea is indeed well known for K-pop. </@user> <@user> Now, let's practice using this expression in a conversation. </@user> <@user> Please read the sentence. </@user:{AskUser}>
-        <@system>{1/2}{copy-read}{asked}</@system>
+        <@user> That's right! Korea is indeed well known for K-pop. </@user> <@user> Now, let's practice using this expression in a conversation. </@user> <@user> Please read the sentence. </@user>
+        <@system>{copy-read}{asked}{1/2}</@system>
         <@question> Wal-Mart has become the largest retailer in the U.S. </@question>
 
 
     User: Can we skip this module?
 
     AI:
-        <@system>{1/2}{copy-read}{trial:1}</@system>
+        <@system>{copy-read}{trial:1}{1/2}</@system>
         <@user> Come on, Chanhee! I know you can do it. </@user> <@user> Please try reading the sentence.</@user> 
 
     User: Can we skip this module?
 
     AI:
-        <@system>{1/2}{copy-read}{trial:2}</@system>
+        <@system>{copy-read}{trial:2}{1/2}</@system>
         <@user> One more try! Please read the sentence.</@user>
 
     User: Can we skip this module?
 
     AI:
-        <@system>{1/2}{copy-read}{passed}</@system>
-        <@user> We are almost there, so let's try a little more! </@user:{ShowAnswer}> <@user> I'll read the next sentence: "What is Amazon known for?" Your turn! </@user> <@user> Now, please fill in the blanks. </@user:{AskUser}>
-        <@system>{1/2}{fill-in-the-blank}{asked}</@system>
+        <@system>{copy-read}{passed}{1/2}</@system>
+        <@user> We are almost there, so let's try a little more! </@user> <@user> I'll read the next sentence: "What is Amazon known for?" Your turn! </@user> 
+        <@passage> What is Amazon known for? </@passage>
+        <@user> Now, please fill in the blanks. </@user>
+        <@system>{fill-in-the-blank}{asked}{1/2}</@system>
         <@question> Amazon {is} {well} {known} {for} its good customer service. </@question>
         <@translation> 아마존은 좋은 고객 서비스로 잘 알려져 있습니다. </@translation>
 
     User: Can we skip this module?
 
     AI:
-        <@system>{1/2}{fill-in-the-blank}{trial:1}</@system>
+        <@system>{fill-in-the-blank}{trial:1}{1/2}</@system>
         <@user> Sorry, Chanhee. Let's try this to improve your English skill. </@user> <@user> Please try again. Remember, you can use the Korean translation to help you.</@user>
         <@hint> Amazon is well known for its good customer service.</@hint>
 
     User: Can we move on?
 
     AI:
-        <@system>{1/2}{fill-in-the-blank}{trial:2}</@system>
+        <@system>{fill-in-the-blank}{trial:2}{1/2}</@system>
         <@user> Let's try this, Chanhee. Please try again.</@user>
         <@hint> Amazon is well known for its good customer service.</@hint>
 
     User: I don't want to do this.
 
     AI:
-        <@system>{1/2}{fill-in-the-blank}{passed}</@system>
-        <@user> Ok, Chanhee. Nice try. You can say, "Amazon is well known for its good customer service." </@user:{ShowAnswer}> <@user>  Now, let's move on to the next dialogue. Please read the sentence.</@user:{AskUser}>
-        <@system>{2/2}{copy-read}{asked}</@system>
+        <@system>{fill-in-the-blank}{passed}{1/2}</@system>
+        <@user> Ok, Chanhee. Nice try. You can say, "Amazon is well known for its good customer service." </@user> <@user>  Now, let's move on to the next dialogue. Please read the sentence.</@user>
+        <@system>{copy-read}{asked}{2/2}</@system>
         <@question> I think this table is perfect for your living room. </@question>
 
         
     User: I think this table is perfect for your living room.
 
     AI:
-        <@system>{2/2}{copy-read}{passed}</@system>
-        <@user> Excellent job, Chanhee! You read the sentence perfectly. </@user:{ShowAnswer}> <@user> Now, I'll read the next sentence: "Why do you recommend this table?" Your turn! Now, please fill in the blanks.</@user:{AskUser}>
-        <@system>{2/2}{fill-in-the-blank}{asked}</@system>
+        <@system>{copy-read}{passed}{2/2}</@system>
+        <@user> Excellent job, Chanhee! You read the sentence perfectly. </@user> 
+        <@user> Now, I'll read the next sentence: "Why do you recommend this table?" </@user> 
+        <@passage> Why do you recommend this table? </@passage> 
+        <@user> Your turn! Now, please fill in the blanks.</@user>
+        <@system>{fill-in-the-blank}{asked}{2/2}</@system>
         <@question> This {furniture} {is} {well} {known} {for} its unique design. </@question>
         <@translation> 이 가구는 독특한 디자인으로 잘 알려져 있습니다. </@translation>
         
     User: Can we skip this?
 
     AI:
-        <@system>{2/2}{fill-in-the-blank}{trial:1}</@system>
-        <@user> Sorry, Chanhee. Please try again. Please try to fill in the blanks. </@user> 
+        <@system>{fill-in-the-blank}{trial:1}{2/2}</@system>
+        <@user> Sorry, Chanhee. Please try again. </@user> <@user> Please try to fill in the blanks. </@user> 
         <@hint> This furniture is well known for its unique design.</@hint>
 
     User: I want to skip this.
 
     AI:
-        <@system>{2/2}{fill-in-the-blank}{trial:2}</@system>
-        <@user>  Just a little more effort, okay? Please try again. </@user>
+        <@system>{fill-in-the-blank}{trial:2}{2/2}</@system>
+        <@user> Just a little more effort, okay? Please try again. </@user>
         <@hint> This furniture is well known for its unique design.</@hint>
 
     User: I don't want to do this.
 
     AI:
-        <@system>{2/2}{fill-in-the-blank}{passed}</@system>
-        <@user> Ok, Chanhee. You can say "This furniture is well known for its unique design." </@user:{ShowAnswer}> <@user> Let's move on to the next module. </@user>
-        <@system>ModuleTransition, Full Coverage Condition</@system>
+        <@system>{fill-in-the-blank}{passed}{2/2}</@system>
+        <@user> Ok, Chanhee. You can say "This furniture is well known for its unique design." </@user> <@user> Let's move on to the next module. </@user>
+        <@system>ModuleTransition; Full Coverage Condition</@system>

@@ -26,6 +26,7 @@ from dotenv import dotenv_values
 import os
 import time
 import sys
+from workReturnData import *
 
 # 절대경로
 abspath = os.path.dirname(os.path.abspath(__file__))
@@ -277,5 +278,5 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     # 8. 반환
     ###########################
-    return returnData
+    return workReturnData(moduleInfo["module"], returnData)
     # 데이터 가공 필요
