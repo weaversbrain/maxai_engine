@@ -224,6 +224,13 @@ def runEngin6(moduleData: ModuleModel, type: str):
 
         for msg in gptMsgArr:
 
+            msg = msg.replace(
+                "<@situation>", "<@system>{show-situation}</@system><@situation>"
+            )  # 메시지 replace
+            msg = msg.replace(
+                "<@passage>", "<@system>{show-passage}</@system><@passage>"
+            )  # 메시지 replace
+
             messageRole = "assistant"
             speaker = "AI"
 

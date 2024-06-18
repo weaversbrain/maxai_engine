@@ -145,6 +145,50 @@ def workReturnData(module, splitList):
 
                 baseFormat["answerList"].append(answerData)
 
+            elif flag == "show-situation":
+                situation = ""
+
+                if nextData:
+                    for j in range(i + 1, len(splitList)):
+                        splitData = splitList[j]
+                        if splitData["type"] == "user" or splitData["type"] == "system":
+                            break
+
+                        if splitData["type"] == "situation":
+                            situation = splitData["content"]
+
+                answerData = {
+                    "type": "system",
+                    "name": "show-situation",
+                    "option": {
+                        "situation": situation if situation else "",
+                    },
+                }
+
+                baseFormat["answerList"].append(answerData)
+
+            elif flag == "show-passage":
+                passage = ""
+
+                if nextData:
+                    for j in range(i + 1, len(splitList)):
+                        splitData = splitList[j]
+                        if splitData["type"] == "user" or splitData["type"] == "system":
+                            break
+
+                        if splitData["type"] == "passage":
+                            passage = splitData["content"]
+
+                answerData = {
+                    "type": "system",
+                    "name": "show-passage",
+                    "option": {
+                        "passage": passage if passage else "",
+                    },
+                }
+
+                baseFormat["answerList"].append(answerData)
+
             else:
                 answerData = {
                     "type": "system",
