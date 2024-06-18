@@ -208,14 +208,14 @@ def runEngin6(moduleData: ModuleModel, type: str):
     )
 
     gptMsgArr = []
+    returnData = []
 
     # gpt 응답 배열로 받음
     if response:
         for choice in response.choices:  # 배열 형태로 문장이 여러개 줄 가능성 있음
             gptMsgArr.append(choice.message.content)  # 한문장 출력
 
-    returnData = []  # 리턴 데이터
-
+    tmpReturnData = []  # 리턴 데이터
     # 반복 하면서 한문장 덩어리씩 추출
     if gptMsgArr:
 
@@ -254,7 +254,17 @@ def runEngin6(moduleData: ModuleModel, type: str):
                 splitData = extractTagsFromSentence(statement)
 
                 for data in splitData:
-                    returnData.append(data)
+                    tmpReturnData.append(data)
+
+            ###########################
+            # createdGreetings 처리
+            ###########################
+            if moduleInfo["module"] == "E6_SMALL_TALK":
+                for val in tmpReturnData:
+                    if val["type"] == "smallTalkSummary":
+                        createdGreetings = val["content"]
+
+            returnData = workReturnData(moduleInfo["module"], tmpReturnData)
 
     ###########################
     # 7. chat 업데이트
@@ -278,5 +288,4 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     # 8. 반환
     ###########################
-    return workReturnData(moduleInfo["module"], returnData)
-    # 데이터 가공 필요
+    return returnData

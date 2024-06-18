@@ -46,7 +46,6 @@ other_data = {
     + str(datetime.datetime.now(cdt)),
     "currentLocation": "User Location: South Korea",
     "pastConversation": "The user just joined a start-up, WeaversBrain as an AI Engineer during his summer vacation from University of Pennsylvania. He is currently studying computer science and cognitive science.",
-    "todayExpression": "In favor of",
 }
 
 # content_info = {

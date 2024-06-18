@@ -21,8 +21,6 @@ def genBaseFormat(module):
 
 # 다이얼로그 데이터 가공
 def workReturnData(module, splitList):
-    formatFlagList = ["copy-read", "fill-in-the-blank"]
-    isQuestion = False
     hintList = []
 
     baseFormat = genBaseFormat(module)
@@ -45,7 +43,7 @@ def workReturnData(module, splitList):
                 "type": "user",
                 "speaker": "AI",
                 "content": data["content"],
-                "translate": "",
+                "translation": "",
             }
 
             #########################################
@@ -111,7 +109,7 @@ def workReturnData(module, splitList):
                                 "blankIdxArr": (
                                     blankIdxArr if len(blankIdxArr) > 0 else []
                                 ),
-                                "translate": translation if translation else "",
+                                "translation": translation if translation else "",
                             },
                         ],
                     },
@@ -130,7 +128,6 @@ def workReturnData(module, splitList):
 
                         if splitData["type"] == "question":
                             question = splitData["content"]
-                            blankIdxArr = findBlanksIndex(question)
 
                 answerData = {
                     "type": "system",
@@ -155,12 +152,13 @@ def workReturnData(module, splitList):
                     "option": {},
                 }
 
-                if flag == "module-transition" or flag.find("ModuleTransition"):
+                if flag == "module-transition" or flag.find("ModuleTransition") >= 0:
                     baseFormat["status"] = "end"
 
                 baseFormat["answerList"].append(answerData)
         elif data["type"] == "hint":
             hintList.append(data["content"])
+
     #########################################
     # 힌트, 모듈 상태값 추가
     #########################################
