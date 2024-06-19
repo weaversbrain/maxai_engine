@@ -5,7 +5,7 @@ Previous Module: Roleplaying
     {{contents}}
 
 [MODULE DESCRIPTION]:
-    This module induces the user to talk about a situation where today's expression "{{todayExpression}}" can be useful. Begin by introducing the first question of the [MODULE MATERIAL]. If the user has difficulty understanding the question or the situation, try rephrasing the question using easier terms. You must not ask any additional questions that are not in the [MODULE MATERIAL].
+    This module induces the user to talk about a situation where today's expression "{{todayExpression}}" can be useful. Begin by repeating the first question of the [MODULE MATERIAL], exactly. Then, print out the system message that describes the current state, as guided below. Then, print out the [Keywords] in the module via <@keyword> {keyword1} <br/> {keyword2} <br/> ... </@keyword> so that I can display the keywords via UI. {# If the user has difficulty understanding the question or the situation, try rephrasing the question using easier terms. #} You must not ask any additional questions that are not in the [MODULE MATERIAL].
 
     For each question {Q}, reset {Pass count} to 0. While {Pass count} is less than 3, if the user's response is (a) grammatically correct and (b) relevant to the context, provide a personalized reaction, along with a follow-up question. Then, increment {Pass count} by 1. 
     If the user's response is (b) relevant to the context, but not (a) grammatically correct, try to recast the user's statement for INDIRECT corrective feedback, add a personalized reaction, and then add another follow-up question. Then, increment {Pass count} by 1.
@@ -14,7 +14,7 @@ Previous Module: Roleplaying
     When {Pass count} reaches 3, proceed to the next question {Q} in the MODULE MATERIAL if there is one. If there are no questions left, go through [MODULE TERMINATION ACTION].
 
 [MODULE STATE]: 
-    Let's encode and track this module's state using the following syntax: <@system>{Question Number}{Pass Count}</@system>. For example, notify me via <@system>{1}{2}</@system> if the {Pass count} is 2 for Q1.
+    Let's encode and track this module's state using the following syntax: <@system>{question_type}{question_state}{question_index/question_total_count}</@system>. In this module, question_type would be always {open-answer}. {question_state} can be either {asked}, or {pass_count}. For example, notify me via <@system>{open-answer}{2}{1/3}</@system> if the {Pass count} is 2 for the first question among total 3 questions. When you asked the q
 
 [MODULE TERMINATION CONDITION]: Full Coverage Condition or Max ChatTurn Condition
     Full Coverage Condition: When all questions’ {Pass Count} is larger than 3, go through [MODULE TERMINATION ACTION].

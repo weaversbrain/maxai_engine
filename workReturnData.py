@@ -74,7 +74,7 @@ def workReturnData(module, splitList):
             if listIndexExist(flagList, 2):
                 tmpCnt = flagList[2]
                 tmpCnt = tmpCnt.split("/")
-                curIdx = int(tmpCnt[0]) - 1 if tmpCnt[0] > 0 else 0
+                curIdx = int(tmpCnt[0]) - 1 if int(tmpCnt[0]) > 0 else 0
                 totalCnt = int(tmpCnt[1])
 
             #########################################
@@ -188,6 +188,28 @@ def workReturnData(module, splitList):
                     "name": flag,
                     "option": {
                         "passage": passage if passage else "",
+                    },
+                }
+
+                baseFormat["answerList"].append(answerData)
+
+            elif flag == "show-keyword":
+                keyword = ""
+
+                if nextData:
+                    for j in range(i + 1, len(splitList)):
+                        splitData = splitList[j]
+                        if splitData["type"] == "user" or splitData["type"] == "system":
+                            break
+
+                        if splitData["type"] == "keyword":
+                            keyword = splitData["content"]
+
+                answerData = {
+                    "type": "system",
+                    "name": flag,
+                    "option": {
+                        "keyword": keyword if keyword else "",
                     },
                 }
 
