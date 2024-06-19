@@ -24,6 +24,7 @@ def genChat(createChatData: CreateChatModel):
     sql = f'''
         INSERT INTO chat 
         SET
+            chatId          = '{str(createChatData.chatId)}',
             lessonId        = '{str(createChatData.lessonId)}',
             userId          = '{str(createChatData.userId)}',
             userName        = '{createChatData.userName}',

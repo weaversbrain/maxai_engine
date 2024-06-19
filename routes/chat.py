@@ -28,7 +28,8 @@ chat = APIRouter(prefix="/chat", tags=["chat"])
 async def createChat(createChatData: CreateChatModel):
 
     if (
-        not createChatData.lessonId
+        not createChatData.chatId
+        or not createChatData.lessonId
         or not createChatData.userId
         or not createChatData.userName
         or not createChatData.teacherName
