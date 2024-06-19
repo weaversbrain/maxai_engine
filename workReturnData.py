@@ -181,10 +181,19 @@ def workReturnData(module, splitList):
 
                 answerData = {
                     "type": "system",
-                    "name": "show-passage",
+                    "name": flag,
                     "option": {
                         "passage": passage if passage else "",
                     },
+                }
+
+                baseFormat["answerList"].append(answerData)
+
+            elif flag == "open-answer":
+                answerData = {
+                    "type": "system",
+                    "name": flag,
+                    "option": {"status": status if status else ""},
                 }
 
                 baseFormat["answerList"].append(answerData)
