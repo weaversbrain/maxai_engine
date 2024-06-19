@@ -24,14 +24,14 @@ def genChat(createChatData: CreateChatModel):
     sql = f'''
         INSERT INTO chat 
         SET
-            chatId          = '{str(createChatData.chatId)}',
             lessonId        = '{str(createChatData.lessonId)}',
             userId          = '{str(createChatData.userId)}',
             userName        = '{createChatData.userName}',
             teacherName     = '{createChatData.teacherName}',
             teacherPersona  = '{createChatData.teacherPersona.replace("'","\\'")}'
     '''
-    db.insertDB(sql)
+    chatId = db.insertDB(sql)
+    return chatId
 
 
 def setChat(updateData: dict, whereData: dict):

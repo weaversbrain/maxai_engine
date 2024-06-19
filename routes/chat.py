@@ -28,8 +28,7 @@ chat = APIRouter(prefix="/chat", tags=["chat"])
 async def createChat(createChatData: CreateChatModel):
 
     if (
-        not createChatData.chatId
-        or not createChatData.lessonId
+        not createChatData.lessonId
         or not createChatData.userId
         or not createChatData.userName
         or not createChatData.teacherName
@@ -41,8 +40,10 @@ async def createChat(createChatData: CreateChatModel):
     # 초기 AI prompt 가져오기
     # response = runEngin6({'userId':createChatData.userId,'chatId':chatId,'module':'initial','answer':''})
 
-    genChat(createChatData)  # chat 생성
-    returnData = {"code": "Y", "msg": "성공", "chatId": createChatData.chatId}
+    chatId = genChat(createChatData)  # chat 생성
+    returnData = {"code": "E", "msg": "채팅 생성 실패", "chatId": None}
+    if chatId:
+        returnData = {"code": "Y", "msg": "성공", "chatId": chatId}
 
     return returnData
 
