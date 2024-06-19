@@ -67,7 +67,7 @@ def workReturnData(module, splitList):
             flag = flagList[0]
             status = ""
             totalCnt = 0
-            curCnt = 0
+            curIdx = 0
 
             if listIndexExist(flagList, 1):
                 status = "trial" if flagList[1].find("trial") >= 0 else flagList[1]
