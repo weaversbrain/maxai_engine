@@ -24,14 +24,16 @@ def genChat(createChatData: CreateChatModel):
     sql = """
         INSERT INTO chat 
         SET
-            lessonId        = '{}',
+            id              = '{}',
             userId          = '{}',
+            lessonId        = '{}',
             userName        = '{}',
             teacherName     = '{}',
             teacherPersona  = '{}'
     """.format(
-        str(createChatData.lessonId),
+        createChatData.chatId,
         str(createChatData.userId),
+        str(createChatData.lessonId),
         createChatData.userName,
         createChatData.teacherName,
         createChatData.teacherPersona.replace("'", "''"),  # ' 문자 처리

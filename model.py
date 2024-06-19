@@ -19,6 +19,7 @@ from datetime import datetime
 
 class CreateChatModel(BaseModel):
     userId: int = 0
+    chatId: int = 0
     lessonId: int = 0
     userName: Optional[str] = None
     teacherName: Optional[str] = None

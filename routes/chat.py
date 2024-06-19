@@ -14,11 +14,10 @@
 
 from fastapi import APIRouter
 
-# from database import Database
-# from typing import Union
 from model import CreateChatModel, ModuleModel, CreateFeedbackModel
 from crud import *
 from process import *
+from feedback import createFeedback
 
 chat = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -28,7 +27,8 @@ chat = APIRouter(prefix="/chat", tags=["chat"])
 async def createChat(createChatData: CreateChatModel):
 
     if (
-        not createChatData.lessonId
+        not createChatData.chatId
+        or not createChatData.lessonId
         or not createChatData.userId
         or not createChatData.userName
         or not createChatData.teacherName
@@ -37,15 +37,20 @@ async def createChat(createChatData: CreateChatModel):
         returnData = {"code": "E", "msg": "필수값 누락"}
         return returnData
 
-    # 초기 AI prompt 가져오기
-    # response = runEngin6({'userId':createChatData.userId,'chatId':chatId,'module':'initial','answer':''})
+    # 채팅 중복 채크
+    chatInfo = getChat(createChatData.chatId)
+    if chatInfo:
+        return {"code": "E", "msg": "ChatId 중복", "chatId": None}
 
-    chatId = genChat(createChatData)  # chat 생성
-    returnData = {"code": "E", "msg": "채팅 생성 실패", "chatId": None}
-    if chatId:
-        returnData = {"code": "Y", "msg": "성공", "chatId": chatId}
+    # chat 생성
+    genChat(createChatData)
 
-    return returnData
+    # 채팅 생성 되었는지 확인
+    chatInfo = getChat(createChatData.chatId)
+    if not chatInfo:
+        return {"code": "E", "msg": "채팅 생성 실패", "chatId": None}
+
+    return {"code": "Y", "msg": "성공", "chatId": createChatData.chatId}
 
 
 @chat.post("/startModule")
@@ -78,7 +83,7 @@ async def moduleList(moduleListData: ModuleListData):
 
 
 @chat.post("/createFeedback")
-async def createFeedback(createFeedbackModel: CreateFeedbackModel):
+async def feedbackCreate(createFeedbackModel: CreateFeedbackModel):
     if not createFeedbackModel.userId or not createFeedbackModel.chatId:
         return {"code": "E", "msg": "필수값 누락"}
 
