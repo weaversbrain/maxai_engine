@@ -42,7 +42,7 @@ async def createChat(createChatData: CreateChatModel):
     # response = runEngin6({'userId':createChatData.userId,'chatId':chatId,'module':'initial','answer':''})
 
     chatId = genChat(createChatData)  # chat 생성
-    returnData = {"code": "Y", "chatId": None}
+    returnData = {"code": "E", "msg": "채팅 생성 실패", "chatId": None}
     if chatId:
         returnData["chatId"] = chatId
 
