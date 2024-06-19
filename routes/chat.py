@@ -41,10 +41,8 @@ async def createChat(createChatData: CreateChatModel):
     # 초기 AI prompt 가져오기
     # response = runEngin6({'userId':createChatData.userId,'chatId':chatId,'module':'initial','answer':''})
 
-    chatId = genChat(createChatData)  # chat 생성
-    returnData = {"code": "E", "msg": "채팅 생성 실패", "chatId": None}
-    if chatId:
-        returnData["chatId"] = chatId
+    genChat(createChatData)  # chat 생성
+    returnData = {"code": "Y", "msg": "성공", "chatId": createChatData.chatId}
 
     return returnData
 

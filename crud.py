@@ -31,8 +31,7 @@ def genChat(createChatData: CreateChatModel):
             teacherName     = '{createChatData.teacherName}',
             teacherPersona  = '{createChatData.teacherPersona.replace("'","\\'")}'
     '''
-    chatId = db.insertDB(sql)
-    return chatId
+    db.insertDB(sql)
 
 
 def setChat(updateData: dict, whereData: dict):
