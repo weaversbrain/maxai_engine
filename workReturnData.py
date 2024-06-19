@@ -74,7 +74,7 @@ def workReturnData(module, splitList):
             if listIndexExist(flagList, 2):
                 tmpCnt = flagList[2]
                 tmpCnt = tmpCnt.split("/")
-                curCnt = tmpCnt[0]
+                curIdx = tmpCnt[0]
                 totalCnt = tmpCnt[1]
 
             #########################################
@@ -102,6 +102,8 @@ def workReturnData(module, splitList):
                     "name": "fill-in-the-blank",
                     "option": {
                         "status": status if status else "",
+                        "totalCnt": totalCnt if totalCnt else "",
+                        "curIdx": curIdx if curIdx else 0,
                         "blankBoxList": [
                             {
                                 "firstRole": "AI",
@@ -134,6 +136,8 @@ def workReturnData(module, splitList):
                     "name": "copy-read",
                     "option": {
                         "status": status if status else "",
+                        "totalCnt": totalCnt if totalCnt else "",
+                        "curIdx": curIdx if curIdx else 0,
                         "dialogue": [
                             {
                                 "content": question if question else "",
@@ -193,7 +197,11 @@ def workReturnData(module, splitList):
                 answerData = {
                     "type": "system",
                     "name": flag,
-                    "option": {"status": status if status else ""},
+                    "option": {
+                        "status": status if status else "",
+                        "totalCnt": totalCnt if totalCnt else "",
+                        "curIdx": curIdx if curIdx else 0,
+                    },
                 }
 
                 baseFormat["answerList"].append(answerData)
@@ -209,6 +217,7 @@ def workReturnData(module, splitList):
                     baseFormat["status"] = "end"
 
                 baseFormat["answerList"].append(answerData)
+
         elif data["type"] == "hint":
             hintList.append(data["content"])
 
