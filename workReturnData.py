@@ -74,8 +74,8 @@ def workReturnData(module, splitList):
             if listIndexExist(flagList, 2):
                 tmpCnt = flagList[2]
                 tmpCnt = tmpCnt.split("/")
-                curIdx = tmpCnt[0]
-                totalCnt = tmpCnt[1]
+                curIdx = int(tmpCnt[0]) - 1 if tmpCnt[0] > 0 else 0
+                totalCnt = int(tmpCnt[1])
 
             #########################################
             # 로직 처리
