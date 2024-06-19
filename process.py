@@ -21,7 +21,6 @@ import datetime, os
 from dotenv import load_dotenv
 from model import *
 from crud import *
-from utility import *
 from dotenv import dotenv_values
 import os
 import time
@@ -58,7 +57,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     renderData.update(other_data)
 
     chatInfo = getChat(moduleData.chatId)  # chat Info
-    moduleInfo = getModuleInfo(moduleData.moduleId)  # module Info
+    moduleInfo = getModule(moduleData.moduleId)  # module Info
     lessonInfo = getLessonInfo(chatInfo["lessonId"])
 
     todayExpression = lessonInfo["subject"]
@@ -109,7 +108,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     historyData["userId"] = chatInfo["userId"]
     historyData["notModule"] = moduleInfo["module"]
 
-    historyList = getListHistory("LIST", historyData)  # 지금까지의 히스토리 내역
+    historyList = getListHistory(historyData)  # 지금까지의 히스토리 내역
     for row in historyList:
         speaker = "user"
 
@@ -125,7 +124,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     # 현재 모듈 값 세팅
     ###########################
-    moduleInfo = getModuleInfo(moduleData.moduleId)
+    moduleInfo = getModule(moduleData.moduleId)
     renderData.update({"contents": moduleInfo["content"]})
     renderedStr = renderTemplate(moduleInfo["module"], renderData)
 
@@ -158,7 +157,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     historyData["userId"] = chatInfo["userId"]
     historyData["module"] = moduleInfo["module"]
 
-    historyList = getListHistory("LIST", historyData)  # 지금까지의 히스토리 내역
+    historyList = getListHistory(historyData)  # 지금까지의 히스토리 내역
     curChatTurn = 0
     for row in historyList:
         speaker = "user"
@@ -229,6 +228,9 @@ def runEngin6(moduleData: ModuleModel, type: str):
             )  # 메시지 replace
             msg = msg.replace(
                 "<@passage>", "<@system>{show-passage}</@system><@passage>"
+            )  # 메시지 replace
+            msg = msg.replace(
+                "<@keyword>", "<@system>{show-keyword}</@system><@keyword>"
             )  # 메시지 replace
 
             messageRole = "assistant"

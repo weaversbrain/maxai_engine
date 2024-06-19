@@ -21,45 +21,48 @@ from utility import *
 
 def genChat(createChatData: CreateChatModel):
     db = Database("mysql")
-    sql = f'''
+    sql = """
         INSERT INTO chat 
         SET
-            lessonId        = '{str(createChatData.lessonId)}',
-            userId          = '{str(createChatData.userId)}',
-            userName        = '{createChatData.userName}',
-            teacherName     = '{createChatData.teacherName}',
-            teacherPersona  = '{createChatData.teacherPersona.replace("'","\\'")}'
-    '''
+            lessonId        = '{}',
+            userId          = '{}',
+            userName        = '{}',
+            teacherName     = '{}',
+            teacherPersona  = '{}'
+    """.format(
+        str(createChatData.lessonId),
+        str(createChatData.userId),
+        createChatData.userName,
+        createChatData.teacherName,
+        createChatData.teacherPersona.replace("'", "''"),  # ' 문자 처리
+    )
+
     chatId = db.insertDB(sql)
     return chatId
 
 
 def setChat(updateData: dict, whereData: dict):
-    updateSql = ""
-    whereSql = " WHERE 1=1"
-
-    if len(updateData) < 1 or len(whereData) < 1:
+    if not updateData or not whereData:
         return None
 
-    # update 값 세팅
-    for key, val in updateData.items():
-        updateSql += f"{key} = '{val}',"
+    # Update 값 세팅
+    updateSql = ", ".join([f"{key} = %s" for key in updateData.keys()])
 
-    updateSql = updateSql[:-1]  # 마지막 , 제거
+    # Where 절 값 세팅
+    whereSql = " AND ".join([f"{key} = %s" for key in whereData.keys()])
 
-    # where 값 세팅
-    for key, val in whereData.items():
-        whereSql += f" AND {key} = '{val}'"
+    # SQL 쿼리 생성
+    sql = """
+        UPDATE engine6.chat
+        SET {}
+        WHERE 1=1 {}
+    """.format(
+        updateSql, whereSql
+    )
 
+    # 데이터베이스 연결 및 쿼리 실행
     db = Database("mysql")
-    sql = f"""
-            UPDATE
-                engine6.chat    
-            SET
-                {updateSql}
-            {whereSql}
-    """
-    db.updateDB(sql)
+    db.updateDB(sql, list(updateData.values()) + list(whereData.values()))
 
 
 def setChatInfo(
@@ -89,7 +92,7 @@ def getChat(chatId: int):
     return chatData
 
 
-def getListHistory(type: str, whereData: dict, pageData: Optional[dict] = None):
+def getListHistory(whereData: dict):
     whereSql = " WHERE 1=1 AND del = 0"
 
     if whereData:
@@ -104,12 +107,8 @@ def getListHistory(type: str, whereData: dict, pageData: Optional[dict] = None):
 
     db = Database("mysql")
 
-    if type == "COUNT":
-        sql = f"SELECT count(*) FROM engine6.chatHistory AS A {whereSql}"
-        return db.readDB(sql)
-    elif type == "LIST":
-        sql = f"SELECT * from engine6.chatHistory AS A {whereSql} ORDER BY id ASC"
-        return db.readDB(sql, "all")
+    sql = f"SELECT * from engine6.chatHistory AS A {whereSql} ORDER BY id ASC"
+    return db.readDB(sql, "all")
 
 
 def genHistory(createHistoryData: CreateHistoryModel):
@@ -172,7 +171,7 @@ def getLessonInfo(lessonId: int):
     return lessonInfo
 
 
-def getLessonModuleList(lessonId: int):
+def getListLessonModule(lessonId: int):
     db = Database("mysql")
 
     sql = f"""
@@ -190,7 +189,7 @@ def getLessonModuleList(lessonId: int):
     return moduleList
 
 
-def getModuleInfo(moduleId: int):
+def getModule(moduleId: int):
     db = Database("mysql")
 
     sql = f"""

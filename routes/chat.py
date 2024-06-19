@@ -16,7 +16,7 @@ from fastapi import APIRouter
 
 # from database import Database
 # from typing import Union
-from model import CreateChatModel, ModuleModel
+from model import CreateChatModel, ModuleModel, CreateFeedbackModel
 from crud import *
 from process import *
 
@@ -74,5 +74,12 @@ async def addUserStatement(moduleData: ModuleModel):
 
 @chat.post("/moduleList")
 async def moduleList(moduleListData: ModuleListData):
+    return getListLessonModule(moduleListData.lessonId)
 
-    return getLessonModuleList(moduleListData.lessonId)
+
+@chat.post("/createFeedback")
+async def createFeedback(createFeedbackModel: CreateFeedbackModel):
+    if not createFeedbackModel.userId or not createFeedbackModel.chatId:
+        return {"code": "E", "msg": "필수값 누락"}
+
+    return createFeedback(createFeedbackModel)

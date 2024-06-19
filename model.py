@@ -47,3 +47,8 @@ class HistoryModel(BaseModel):
 
 class ModuleListData(BaseModel):
     lessonId: int = 0
+
+
+class CreateFeedbackModel(BaseModel):
+    chatId: int = 0
+    userId: int = 0
