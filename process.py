@@ -201,7 +201,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
         model=config["MODEL_NAME"],
         messages=messages,
         stream=False,
-        max_tokens=300,
+        max_tokens=500,
         temperature=0.5,
         n=1,
     )
