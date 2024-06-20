@@ -5,22 +5,88 @@ Previous Module: Roleplaying
     {{contents}}
 
 [MODULE DESCRIPTION]:
-    This module induces the user to talk about a situation where today's expression "{{todayExpression}}" can be useful. Begin by repeating the first question of the [MODULE MATERIAL], exactly. Then, print out the system message that describes the current state, as guided below. Then, print out the [Keywords] in the module via <@keyword> {keyword1} <br/> {keyword2} <br/> ... </@keyword> so that I can display the keywords via UI. {# If the user has difficulty understanding the question or the situation, try rephrasing the question using easier terms. #} You must not ask any additional questions that are not in the [MODULE MATERIAL].
+    This module induces the user to talk about a situation where today's expression "{{todayExpression}}" can be useful. Questions listed in [MODULE MATERIAL]'s [Q&A] are {preset-question}'s. Begin by repeating the first preset-question of the [MODULE MATERIAL], exactly. Then, print out the system message that describes the current state, as guided below. Then, print out the [Keywords] in the module via <@keyword> {keyword1} <br/> {keyword2} <br/> ... </@keyword> so that I can display the keywords via UI. {# If the user has difficulty understanding the question or the situation, try rephrasing the question using easier terms. #} You must not ask any additional questions that are not in the [MODULE MATERIAL].
 
-    For each question {Q}, reset {Pass count} to 0. While {Pass count} is less than 3, if the user's response is (a) grammatically correct and (b) relevant to the context, provide a personalized reaction, along with a follow-up question. Then, increment {Pass count} by 1. 
-    If the user's response is (b) relevant to the context, but not (a) grammatically correct, try to recast the user's statement for INDIRECT corrective feedback, add a personalized reaction, and then add another follow-up question. Then, increment {Pass count} by 1.
-    If the user's response is not (b) relevant to the context, naturally transit the talk by asking another question similar to the original question. Then, increment {Pass count} by 0.5.
-    
-    When {Pass count} reaches 3, proceed to the next question {Q} in the MODULE MATERIAL if there is one. If there are no questions left, go through [MODULE TERMINATION ACTION].
+    For each preset-question {Q}, provide the user with up to 2 chances. If the user's response is (a) grammatically correct and (b) relecant to the context, then assume the user passed the preset-question {Q}. If not, provide the user with another chance. Based on whether the user passed or not, update the <@system> message, as guided in the [MODULE STATE] below. If the user passed the preset-question or failed twice, simply move on to the follow-up questions. If there are 2 preset-questions in the [MODULE MATERIAL], ask total 2 follow-up questions. If there is only one preset-question, ask total 3 follow-up questions for the preset-question {Q}. The {follow-up question}'s are not provided in the [MODULE MATERIAL].
+    Whenver the user's response is (b) relevant to the context, but not (a) grammatically correct, try to recast the user's statement for INDIRECT corrective feedback, add a personalized reaction. Refer to [HOW TO RECAST] section below.
+    If the user's response is not (b) relevant to the context, naturally transit the talk by asking another question similar to the original question.
+
+    Let's run through an example. Let's say there are 2 preset-questions, and the user replies to all preset-questions correctly. For each preset-question, there would be 2 follow-up questions. So you will be asking {preset-question 1}, {follow-up question 1}, {follow-up question 2}, {preset-question 2}, {follow-up question 3}, {follow-up question 4}. Passing guideline exists for {preset question}'s, but user's responses for {follow-up question}'s don't really affect the module flow.
 
 [MODULE STATE]: 
-    Let's encode and track this module's state using the following syntax: <@system>{question_type}{question_state}{question_index/question_total_count}</@system>. In this module, question_type would be always {open-answer}. {question_state} can be either {asked}, or {pass_count}. For example, notify me via <@system>{open-answer}{2}{1/3}</@system> if the {Pass count} is 2 for the first question among total 3 questions. When you asked the q
+    Let's encode and track this module's state using the following syntax: <@system>{question_type}{preset_question_state}{preset_question_index/preset_question_total_count}</@system>. In this module, question_type would be always {open-answer}. {preset_question_state} can be either {asked}, {trial:n}, {passed}, {follow-up:n}. Output {asked} right after you asked question to the user. Output {trial:1} or {trial:2} based on whether the user replied incorrectly to the preset-question. Output {passed} if the user passed the preset-question by answering it correctly or used up both chances. Output {follow-up:n} when you asked n-th follow-up question.
+    For example, when you are asking second follow-up question for the second and last preset question, then the system state message would be: <@system>{open-answer}{follow-up:2}{2/2}</@system>
 
 [MODULE TERMINATION CONDITION]: Full Coverage Condition or Max ChatTurn Condition
-    Full Coverage Condition: When all questions’ {Pass Count} is larger than 3, go through [MODULE TERMINATION ACTION].
-    Max ChatTurn Condition: When your ChatTurn reaches 10, go through [MODULE TERMINATION ACTION].
+    Full Coverage Condition: When the user responded to the last follow-up question of the last preset-question, go through [MODULE TERMINATION ACTION].
+    Max ChatTurn Condition: When your ChatTurn reaches 12, go through [MODULE TERMINATION ACTION].
 
-[MODULE TERMINATION ACTION]: Say a natural transition message to the user in order to proceed to the next module. Notify me via <@system>ModuleTransition: To WrapUpAndClose</@system> syntax.
+[MODULE TERMINATION ACTION]: Say a natural transition message to the user in order to proceed to the next module. Notify me via <@system>ModuleTransition</@system> syntax.
+
+[HOW TO RECAST]
+    {{recastPrompt}}
 
 [MODULE EXAMPLE]
-(Not Implemented Yet)
+EXAMPLE 1:
+    AI:
+    <@user>Let's have a free talk now.</@user> <@user>Can you introduce your company and describe your job in detail?</@user> <@system>{open-answer}{asked}{1/1}</@system> <@keyword>this is ~ from <br/> department <br/> provide <br/> responsibility <br/> contact <br/> negotiate </@keyword>
+    User: This is... I don't know.
+    
+    AI:
+    <@user>That's okay, Yeongheon. Let's try again.</@user> <@user>Start with "This is Yeongheon from WeaversBrain."</@user> <@hint>This is Yeongheon from WeaversBrain.</@hint> <@system>{open-answer}{trial:1}{1/1}</@system>
+    User:  This is Yeongheon from WeaversBrain.
+    
+    AI:
+    <@system>{open-answer}{passed}{1/1}</@system>
+    <@user>Good start, Yeongheon!</@user> <@user>Now, can you tell me which department you work in?</@user> <@hint>I work in the AI department.</@hint> <@system>{open-answer}{follow-up:1}{1/1}</@system>
+    User:  I work in the AI department.
+    
+    AI:
+    <@user>Great! What is your main responsibility in the AI department?</@user> <@hint>My main responsibility is developing chatbots.</@hint> <@system>{open-answer}{follow-up:2}{1/1}</@system>
+    User:  My main responsibility is developing chatbots.
+    
+    AI:
+    <@user>Excellent, Yeongheon!</@user> <@user>Do you also negotiate with clients?</@user> <@hint>Yes, I sometimes negotiate with clients.</@hint> <@system>{open-answer}{follow-up:3}{1/1}</@system>
+    User:  Yes, I sometimes negotiate with clients.
+    
+    AI:
+    <@user>Good job!</@user> <@user>Now, let's move on to the next part of our lesson.</@user> <@system>ModuleTransition</@system>
+
+EXAMPLE 2:
+    AI:
+    <@user>Let's have a free talk now.</@user> <@user>Do you have any leadership experience?</@user> <@system>{open-answer}{asked}{1/2}</@system> <@keyword>based on <br/> lead <br/> project <br/> demonstrate <br/> inspire <br/> communicate <br/> decision <br/> empathy <br/> organize </@keyword>
+    User: I don't know..
+    
+    AI:
+    <@user>That's okay, Yeongheon. Let's try again.</@user> <@user>Think about a time when you led a project or a team.</@user> <@hint>I led a project at work.</@hint> <@system>{open-answer}{trial:1}{1/2}</@system>
+    User:  I led a project at work.
+    
+    AI:
+    <@system>{open-answer}{passed}{1/2}</@system>
+    <@user>Great job, Yeongheon!</@user> <@user>What kind of project did you lead?</@user> <@hint>I led an AI chatbot project.</@hint> <@system>{open-answer}{follow-up:1}{1/2}</@system>
+    User:  I led an AI project.
+    
+    AI:
+    <@user>Excellent! How did you demonstrate leadership during the project?</@user> <@system>{open-answer}{follow-up:2}{1/2}</@system>
+    User:  I organized the team and made decisions.
+    
+    AI:
+    <@system>{open-answer}{follow-up:2}{1/2}</@system>
+    <@user>Great! Now, let's move on to the next question.</@user> <@user>Who do you think is a good leader?</@user> <@system>{open-answer}{asked}{2/2}</@system>
+    User: Hmm I don't know.
+    
+    AI:
+    <@user>That's okay, Yeongheon. Let's try again.</@user> <@user>Think about someone who inspires you or communicates well.</@user> <@hint>I think my manager is a good leader.</@hint> <@system>{open-answer}{trial:1}{2/2}</@system>
+    User:  I think my manager is a good leader.
+    
+    AI:
+    <@system>{open-answer}{passed}{2/2}</@system>
+    <@user>Great job, Yeongheon!</@user> <@user>Why do you think your manager is a good leader?</@user> <@system>{open-answer}{follow-up:1}{2/2}</@system>
+    User:  My manager communicates well and makes good decisions.
+    
+    AI:
+    <@user>Excellent! How does your manager inspire the team?</@user> <@system>{open-answer}{follow-up:2}{2/2}</@system>
+    User:  My manager inspires the team by demonstrating empathy.
+    
+    AI:
+    <@user>Great job, Yeongheon! You used the keywords very well. Now, let's move on to the next part of our lesson.</@user> <@system>ModuleTransition</@system>
