@@ -207,12 +207,13 @@ def getModule(moduleId: int):
     return lessonInfo
 
 
-def genChatCompletion(request, response):
+def genChatCompletion(chatId, request, response):
     db = Database("mysql")
     sql = """
         INSERT INTO engine6.chatCompletionLog 
         SET
             id                  = '{}',
+            chatId              = '{}',
             request             = '{}',
             response            = '{}',
             model               = '{}',
@@ -222,6 +223,7 @@ def genChatCompletion(request, response):
             total_tokens        = '{}'
     """.format(
         response["id"],
+        chatId,
         escapeText(json.dumps(request, ensure_ascii=False)),
         escapeText(json.dumps(response, ensure_ascii=False)),
         response["model"],

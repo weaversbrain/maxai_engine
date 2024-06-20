@@ -322,6 +322,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     # chatCompletion 등록
     ###########################
     genChatCompletion(
+        chatInfo['id'],
         requestToJson,
         responseToJson,
     )
