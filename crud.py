@@ -44,40 +44,46 @@ def genChat(createChatData: CreateChatModel):
 
 
 def setChat(updateData: dict, whereData: dict):
-    if not updateData or not whereData:
+    updateSql = ""
+    whereSql = " WHERE 1=1"
+
+    if len(updateData) < 1 or len(whereData) < 1:
         return None
 
-    # Update 값 세팅
-    updateSql = ", ".join([f"{key} = %s" for key in updateData.keys()])
+    # update 값 세팅
+    for key, val in updateData.items():
+        updateSql += f"{key} = '{val}',"
 
-    # Where 절 값 세팅
-    whereSql = " AND ".join([f"{key} = %s" for key in whereData.keys()])
+    updateSql = updateSql[:-1]  # 마지막 , 제거
 
-    # SQL 쿼리 생성
-    sql = """
-        UPDATE engine6.chat
-        SET {}
-        WHERE 1=1 {}
-    """.format(
-        updateSql, whereSql
-    )
+    # where 값 세팅
+    for key, val in whereData.items():
+        whereSql += f" AND {key} = '{val}'"
 
-    # 데이터베이스 연결 및 쿼리 실행
     db = Database("mysql")
-    db.updateDB(sql, list(updateData.values()) + list(whereData.values()))
+    sql = f"""
+            UPDATE
+                engine6.chat    
+            SET
+                {updateSql}
+            {whereSql}
+    """
+    db.updateDB(sql)
 
 
 def setChatInfo(
     chatId: int,
     messages: Union[str, None] = None,
+    createdGreetings: Union[str, None] = None,
     chatTurn: int = 0,
     currentModule: int = 0,
 ):
     db = Database("mysql")
     sql = (
-        """UPDATE chat SET messages = '%s',chatTurn=%d,currentModule='%s'  WHERE id = %d"""
+        """UPDATE chat SET messages = '%s',createdGreetings='%s', chatTurn=%d,currentModule='%s'  WHERE id = %d"""
         % (
             escapeText(json.dumps(messages, ensure_ascii=False)),
+            escapeText(createdGreetings) if createdGreetings else "",
             chatTurn,
             currentModule,
             chatId,
@@ -102,6 +108,10 @@ def getListHistory(whereData: dict):
             whereSql += f" AND A.chatId = '{whereData['chatId']}'"
         if "userId" in whereData:
             whereSql += f" AND A.userId = '{whereData['userId']}'"
+        if "inModule" in whereData:
+            if isinstance(whereData["inModule"], list):
+                inModule = "','".join(whereData["inModule"])
+                whereSql += f" AND A.module IN ('{inModule}')"
         if "module" in whereData:
             whereSql += f" AND A.module = '{whereData['module']}'"
         if "notModule" in whereData:
@@ -110,6 +120,7 @@ def getListHistory(whereData: dict):
     db = Database("mysql")
 
     sql = f"SELECT * from engine6.chatHistory AS A {whereSql} ORDER BY id ASC"
+
     return db.readDB(sql, "all")
 
 
@@ -171,6 +182,24 @@ def getLessonInfo(lessonId: int):
     lessonInfo = db.readDB(sql)
 
     return lessonInfo
+
+
+def getLessonExpression(lessonId: int):
+    db = Database("mysql")
+
+    sql = f"""
+        SELECT 
+            *
+        FROM
+            maxai_b2b_cms.maxai_lesson_etc
+        WHERE
+            gubun = 'expression'
+            AND seq = '{lessonId}'
+        LIMIT 1
+    """
+    expressionInfo = db.readDB(sql)
+
+    return expressionInfo
 
 
 def getListLessonModule(lessonId: int):

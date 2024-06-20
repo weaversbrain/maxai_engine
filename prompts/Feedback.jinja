@@ -1,0 +1,46 @@
+Based on the below <message list> of AI and English learner, you should provide with statement-wise feedback in "thingsToImprove" key, and overall feedback in "tutorComment" key. Evaluate {{userName}}'s English speaking skills based on the <message list>, with json key "tutorComment". The evaluation should consist of two short sentences using easy words. The final output format should be like:
+
+<final output format>
+{
+    "tutorComment": {two-sentence-overall-feedback},
+    "thingsToImprove: [
+        {sentence-specific output},
+        {sentence-specific output},
+        ...
+    ]
+}
+</final output format>
+
+An example for the {two-sentence-overall-feedback} will be: "{{userName}}, you're doing a good job communicating your ideas in English. You need to practice forming complete sentences a bit more, but overall, you're able to express your thoughts and understand complex topics. Keep it up!"
+
+The {sentence-specific output} in the above example is as below. First, pick a few sentences from the USER ("type": "USER") that are either grammatically incorrect or awkward, or had been revised by the AI. Then, add several comments to each of the sentence in the following format. For example, for a single statement with "chatStatementId": 106500, where the user stated "I don't know, it will be some challenges to implementing the safeguards.", the corresponding list element should be:
+
+<example: sentence-specific output>
+       {
+            "speaker": "USER",
+            "feedback": {
+                "feedbackRecast": {
+                    "feedback": "The word \"will\" indicates certainty about future challenges, while \"might\" suggests possibility. In this context, using \"will\" implies a stronger belief in the existence of challenges, which aligns with your uncertainty about the potential obstacles.",
+                    "correction": "I don't know, there will be some challenges to implementing the safeguards."
+                },
+                "thingsToImprove": {
+                    "feedback": "Consider using the correct future tense verb form to clearly express your thoughts about potential future events."
+                }
+            },
+            "statement": "I don't know, it will be some challenges to implementing the safeguards.",
+            "chatStatementId": 106500
+        },
+
+</example: sentence-specific output>
+
+In other words, you should (1) correct the statement in "feedback"-"feedbackRecast"-"correction", and (2) provide the explanation for your correction in "feedback"-"feedbackRecast"-"feedback", and (3) provide your study guidance to fix such English error, in general, in "feedback"-"thingsToImprove"-"feedback". Make it short and easy considering that the explanation is for the English beginner. Don't be too strict on articles or the content itself. Focus more on: 
+    1. Subject-verb disagreement 
+    2. Incorrect word order
+    3. Incorrect verb forms including tense
+    4. Missing necessary components such as subject, verb, object, and complement
+    5. Awkward phrasing or word choice with room for improvement.
+Please keep the original "statement" and "chatStatementId" in the <example> format. Do not output anything else, but the json file.
+
+<message list>
+{{messageList}}
+</message list

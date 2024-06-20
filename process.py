@@ -36,6 +36,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     renderData = {}
     messages = []
     totalChatTurn = 0
+    createdGreetings = ""
 
     if config["MODEL_NAME"].startswith("gpt"):
         openai = OpenAI(
@@ -58,9 +59,13 @@ def runEngin6(moduleData: ModuleModel, type: str):
 
     chatInfo = getChat(moduleData.chatId)  # chat Info
     moduleInfo = getModule(moduleData.moduleId)  # module Info
-    lessonInfo = getLessonInfo(chatInfo["lessonId"])
+    lessonInfo = getLessonInfo(chatInfo["lessonId"]) # lesson Info
+    expression = getLessonExpression(chatInfo["lessonId"]) # lesson expression
 
-    todayExpression = lessonInfo["subject"]
+    todayExpression = expression['property'] if expression else ""
+    
+    if not todayExpression:
+        return {"code": "E", "msg": "오늘의 표현 정보가 없습니다."}
 
     renderData.update({"todayExpression": todayExpression})
 
@@ -76,6 +81,9 @@ def runEngin6(moduleData: ModuleModel, type: str):
         totalChatTurn = 0
     else:
         totalChatTurn = chatInfo["chatTurn"]
+        
+    if chatInfo['createdGreetings']:
+        createdGreetings = chatInfo['createdGreetings']
 
     ###########################
     # 2. initialize 작업
@@ -297,14 +305,11 @@ def runEngin6(moduleData: ModuleModel, type: str):
 
                 for data in splitData:
                     tmpReturnData.append(data)
-
-            ###########################
-            # createdGreetings 처리
-            ###########################
-            if moduleInfo["module"] == "E6_SMALL_TALK":
-                for val in tmpReturnData:
-                    if val["type"] == "smallTalkSummary":
-                        createdGreetings = val["content"]
+                    ###########################
+                    # createdGreetings 처리
+                    ###########################
+                    if data["type"] == "smallTalkSummary":
+                        createdGreetings = data["content"]
 
             returnData = workReturnData(moduleInfo["module"], tmpReturnData)
 
@@ -314,6 +319,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     setChatInfo(
         moduleData.chatId,
         escapeListMessages(messages),
+        createdGreetings,
         totalChatTurn,
         moduleInfo["module"],
     )
@@ -322,7 +328,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     # chatCompletion 등록
     ###########################
     genChatCompletion(
-        chatInfo['id'],
+        chatInfo["id"],
         requestToJson,
         responseToJson,
     )

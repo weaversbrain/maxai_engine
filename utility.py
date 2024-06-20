@@ -99,8 +99,9 @@ def extractTagsFromSentence(sentence):
     return all_tags
 
 
-def escapeText(text):
-    return text.replace("'", "\\'").replace('"', '\\"')
+def escapeText(text: str):
+    if text:
+        return text.replace("'", "\\'").replace('"', '\\"')
 
 
 def escapeListMessages(messages):

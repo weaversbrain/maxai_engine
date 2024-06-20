@@ -10,6 +10,7 @@ templates = {
     "E6_ROLEPLAYING": "./prompts/Roleplaying.jinja",
     "E6_TALK_MORE": "./prompts/FreeTalk.jinja",
     "E6_WRAP_UP": "./prompts/WrapUpClose.jinja",
+    "FEEDBACK": "./prompts/Feedback.jinja",
 }
 reused_prompt = {
     "recastPrompt": """
