@@ -23,7 +23,6 @@ chat = APIRouter(prefix="/chat", tags=["chat"])
 
 
 @chat.post("/createChat")
-# async def createChat(userId: int = 0,userName: Union[str, None] = None,teacherName: Union[str, None] = None,teacherPersona: Union[str, None] = None):
 async def createChat(createChatData: CreateChatModel):
 
     if (

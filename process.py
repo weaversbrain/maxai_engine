@@ -196,7 +196,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     messages.append({"role": "system", "content": f"ChatTurn: {curChatTurn}"})
     start_time = time.time()
-    # print(json.dumps(messages, ensure_ascii=False))
+
     response = openai.chat.completions.create(
         model=config["MODEL_NAME"],
         messages=messages,
@@ -205,6 +205,39 @@ def runEngin6(moduleData: ModuleModel, type: str):
         temperature=0.5,
         n=1,
     )
+
+    requestToJson = {
+        "model": config["MODEL_NAME"],
+        "message": messages,
+        "stream": False,
+        "max_token": 500,
+        "temperature": "0.5",
+        "n": 1,
+    }
+
+    responseToJson = {
+        "id": response.id,
+        "choices": [
+            {
+                "finish_reason": response.choices[0].finish_reason,
+                "index": response.choices[0].index,
+                "logprobs": response.choices[0].logprobs,
+                "message": {
+                    "content": response.choices[0].message.content,
+                    "role": response.choices[0].message.role,
+                },
+            }
+        ],
+        "created": response.created,
+        "model": response.model,
+        "object": response.object,
+        "system_fingerprint": response.system_fingerprint,
+        "usage": {
+            "completion_tokens": response.usage.completion_tokens,
+            "prompt_tokens": response.usage.prompt_tokens,
+            "total_tokens": response.usage.total_tokens,
+        },
+    }
 
     gptMsgArr = []
     returnData = []
@@ -276,13 +309,21 @@ def runEngin6(moduleData: ModuleModel, type: str):
             returnData = workReturnData(moduleInfo["module"], tmpReturnData)
 
     ###########################
-    # 7. chat 업데이트
+    # chat 업데이트
     ###########################
     setChatInfo(
         moduleData.chatId,
         escapeListMessages(messages),
         totalChatTurn,
         moduleInfo["module"],
+    )
+
+    ###########################
+    # chatCompletion 등록
+    ###########################
+    genChatCompletion(
+        requestToJson,
+        responseToJson,
     )
 
     # 디버깅용 chat.json 파일 저장

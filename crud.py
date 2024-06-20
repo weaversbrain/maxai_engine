@@ -36,7 +36,7 @@ def genChat(createChatData: CreateChatModel):
         str(createChatData.lessonId),
         createChatData.userName,
         createChatData.teacherName,
-        createChatData.teacherPersona.replace("'", "''"),  # ' 문자 처리
+        escapeText(createChatData.teacherPersona),  # ' 문자 처리
     )
 
     chatId = db.insertDB(sql)
@@ -205,3 +205,30 @@ def getModule(moduleId: int):
     lessonInfo = db.readDB(sql)
 
     return lessonInfo
+
+
+def genChatCompletion(request, response):
+    db = Database("mysql")
+    sql = """
+        INSERT INTO engine6.chatCompletionLog 
+        SET
+            id                  = '{}',
+            request             = '{}',
+            response            = '{}',
+            model               = '{}',
+            created             = '{}',
+            completion_tokens   = '{}',
+            prompt_tokens       = '{}',
+            total_tokens        = '{}'
+    """.format(
+        response["id"],
+        escapeText(json.dumps(request, ensure_ascii=False)),
+        escapeText(json.dumps(response, ensure_ascii=False)),
+        response["model"],
+        response["created"],
+        response["usage"]["completion_tokens"],
+        response["usage"]["prompt_tokens"],
+        response["usage"]["total_tokens"],
+    )
+    insertId = db.insertDB(sql)
+    return insertId
