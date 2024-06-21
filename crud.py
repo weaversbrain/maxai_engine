@@ -194,7 +194,7 @@ def getLessonExpression(lessonId: int):
             maxai_b2b_cms.maxai_lesson_etc
         WHERE
             gubun = 'expression'
-            AND seq = '{lessonId}'
+            AND lSeq = '{lessonId}'
         LIMIT 1
     """
     expressionInfo = db.readDB(sql)
