@@ -115,12 +115,18 @@ def createFeedback(createFeedbackModel):
         n=1,
     )
 
+    #########################################
+    # 데이터 가공
+    #########################################
     feedbackData = response.choices[0].message.content
     feedbackData = json.loads(feedbackData.replace("json", "").replace("```", ""))
 
     tutorComment = feedbackData["tutorComment"]
     thingsToImprove = feedbackData["thingsToImprove"]
 
+    #########################################
+    # DB처리
+    #########################################
     updateData = {
         "tutorComment": escapeText(tutorComment),
         "thingsToImprove": escapeText(json.dumps(thingsToImprove, ensure_ascii=False)),
