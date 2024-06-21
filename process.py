@@ -308,10 +308,10 @@ def runEngin6(moduleData: ModuleModel, type: str):
             workedData = workReturnData(
                 chatInfo["id"], moduleInfo["module"], tmpReturnData
             )
-            
+
             if not workedData:
                 return {"code": "E", "msg": "데이터 가공 필수값 누락"}
-            
+
             returnData = workedData
 
     ###########################
