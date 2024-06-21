@@ -1,26 +1,87 @@
+from litellm import completion
+from dotenv import load_dotenv
 from utility import *
+from dotenv import dotenv_values
+from crud import *
+import os
 
+# 절대경로
+abspath = os.path.dirname(os.path.abspath(__file__))
+config = dotenv_values(abspath + "/.env")  # 환경변수 읽어오기
 
-# # 데이터 가공 함수
-# def workReturnData(module, data):
-#     if module == "E6_DIALOGUE":
-#         return workDialogueData(module, data)
-#     elif module == "E6_ROLEPLAYING":
-#         return workRoleplayingData(module, data)
-#     elif module == "E6_REVIEW_LAST_CLASS":
-#         return workReviewLastClass(module, data)
-#     elif module == "E6_TALK_MORE":
-#         return workTalkMoreData(module, data)
-#     elif module == "E6_WRAP_UP":
-#         return workWrapUpData(module, data)
+# set ENV variables
+os.environ["OPENAI_API_KEY"] = config["API_KEY1"]
 
 
 def genBaseFormat(module):
     return {"module": module, "answerList": [], "hintList": [], "status": "ing"}
 
 
+def getTranslation(chatId, text):
+    prompt = f"Translate the following sentence into Korean: <Sentence to Translate>{text}</Sentence to Translate>"
+
+    messages = {}
+    messages.update({"role": "assistant", "content": text})
+    messages.update({"role": "system", "content": prompt})
+
+    response = completion(
+        model=config["MODEL_NAME"],
+        messages=messages,
+        stream=False,
+        max_tokens=500,
+        temperature=0.5,
+        n=1,
+    )
+
+    ###########################
+    # chatCompletion 등록
+    ###########################
+    # 요청 데이터 내용
+    requestToJson = {
+        "model": config["MODEL_NAME"],
+        "message": messages,
+        "stream": False,
+        "max_token": 4096,
+        "temperature": 0.5,
+        "n": 1,
+    }
+
+    # 응답 데이터 내용
+    responseToJson = {
+        "id": response.id,
+        "choices": [
+            {
+                "finish_reason": response.choices[0].finish_reason,
+                "index": response.choices[0].index,
+                "message": {
+                    "content": response.choices[0].message.content,
+                    "role": response.choices[0].message.role,
+                },
+            }
+        ],
+        "created": response.created,
+        "model": response.model,
+        "usage": {
+            "completion_tokens": response.usage.completion_tokens,
+            "prompt_tokens": response.usage.prompt_tokens,
+            "total_tokens": response.usage.total_tokens,
+        },
+    }
+
+    genChatCompletion(
+        chatId,
+        requestToJson,
+        responseToJson,
+    )
+
+    return cleanHtml(response.choices[0].message.content).strip()
+
+
 # 다이얼로그 데이터 가공
-def workReturnData(module, splitList):
+def workReturnData(chatId, module, splitList):
+    if not chatId or not module or not splitList:
+        return None
+
     hintList = []
 
     baseFormat = genBaseFormat(module)
@@ -39,19 +100,20 @@ def workReturnData(module, splitList):
         # user 타입 처리
         #########################################
         if data["type"] == "user":
+
             answerData = {
                 "type": "user",
                 "speaker": "AI",
                 "content": data["content"],
-                "translation": "",
+                "translation": getTranslation(chatId, data["content"]),
             }
 
             #########################################
             # translation 추가 처리
             #########################################
-            if nextData:
-                if nextData["type"] == "translation":  # 다음 태그가 번역 태그일 때
-                    answerData.update({"translation": nextData["content"]})
+            # if nextData:
+            #     if nextData["type"] == "translation":  # 다음 태그가 번역 태그일 때
+            #         answerData.update({"translation": nextData["content"]})
 
             baseFormat["answerList"].append(answerData)
 

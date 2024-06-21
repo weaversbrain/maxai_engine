@@ -255,8 +255,7 @@ def getLastChat(chatId: int, userId: int):
         FROM
             engine6.chat
         WHERE
-            id = '{chatId}'
-            AND userId = '{userId}'
+            userId = '{userId}'
             AND id < '{chatId}'
         ORDER BY
             id DESC
