@@ -58,7 +58,7 @@ async def moduleStart(moduleData: ModuleModel):
         return {"result": False}
     else:
         returnData = runEngin6(moduleData, "module")
-        return {"result": True, "data": returnData}
+        return {"result": True, "data": returnData["responseData"]}
 
 
 @chat.post("/answerUser")
@@ -72,8 +72,13 @@ async def addUserStatement(moduleData: ModuleModel):
                 "(said nothing - maybe due to bad internet connection)"
             )
 
-        returnData = runEngin6(moduleData, "answer")
-        return {"result": True, "data": returnData}
+        result = runEngin6(moduleData, "answer")
+        returnData = {"result": True, "data": result["responseData"]}
+
+        if "userChatStatementId" in result:
+            returnData.update({"userChatStatementId": result["userChatStatementId"]})
+
+        return returnData
 
 
 @chat.post("/moduleList")

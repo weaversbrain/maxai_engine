@@ -12,8 +12,7 @@
 +----------------------------------------------------------------------+ 
 """
 
-# from fastapi import FastAPI
-# from prompt_base import *
+from litellm import completion
 from utility import *
 from prompt_base import reused_prompt, other_data
 from openai import OpenAI
@@ -24,12 +23,14 @@ from crud import *
 from dotenv import dotenv_values
 import os
 import time
-import sys
 from workReturnData import *
 
 # 절대경로
 abspath = os.path.dirname(os.path.abspath(__file__))
 config = dotenv_values(abspath + "/.env")  # 환경변수 읽어오기
+
+# set ENV variables
+os.environ["OPENAI_API_KEY"] = config["API_KEY1"]
 
 
 def runEngin6(moduleData: ModuleModel, type: str):
@@ -37,21 +38,11 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     # 초기 세팅
     ###########################
-    if config["MODEL_NAME"].startswith("gpt"):
-        openai = OpenAI(
-            api_key=config["API_KEY1"],
-            # base_url="https://api.openai.com/v1",
-        )
-    else:
-        openai = OpenAI(
-            api_key=config["API_KEY2"],
-            base_url="https://api.deepinfra.com/v1/openai",
-        )
-
     renderData = {}
     messages = []
     totalChatTurn = 0
     pastConversation = ""
+    userChatStatementId = 0
 
     saveFile = f"log/chat_{moduleData.chatId}.json"  # 로그 파일
 
@@ -202,7 +193,8 @@ def runEngin6(moduleData: ModuleModel, type: str):
             "message": escapeText(moduleData.userAnswer),
             "chatTurn": curChatTurn,
         }
-        genHistory(createHistoryData)
+
+        userChatStatementId = genHistory(createHistoryData)
 
     ###########################
     # LLM 처리
@@ -210,7 +202,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     messages.append({"role": "system", "content": f"ChatTurn: {curChatTurn}"})
     start_time = time.time()
 
-    response = openai.chat.completions.create(
+    response = completion(
         model=config["MODEL_NAME"],
         messages=messages,
         stream=False,
@@ -234,7 +226,6 @@ def runEngin6(moduleData: ModuleModel, type: str):
             {
                 "finish_reason": response.choices[0].finish_reason,
                 "index": response.choices[0].index,
-                "logprobs": response.choices[0].logprobs,
                 "message": {
                     "content": response.choices[0].message.content,
                     "role": response.choices[0].message.role,
@@ -243,8 +234,6 @@ def runEngin6(moduleData: ModuleModel, type: str):
         ],
         "created": response.created,
         "model": response.model,
-        "object": response.object,
-        "system_fingerprint": response.system_fingerprint,
         "usage": {
             "completion_tokens": response.usage.completion_tokens,
             "prompt_tokens": response.usage.prompt_tokens,
@@ -350,4 +339,4 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     # 8. 반환
     ###########################
-    return returnData
+    return {"responseData": returnData, "userChatStatementId": userChatStatementId}

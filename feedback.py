@@ -12,6 +12,7 @@
 +----------------------------------------------------------------------+ 
 """
 
+from litellm import completion
 from openai import OpenAI
 from dotenv import load_dotenv
 from model import CreateFeedbackModel
@@ -26,21 +27,14 @@ import json
 abspath = os.path.dirname(os.path.abspath(__file__))
 config = dotenv_values(abspath + "/.env")  # 환경변수 읽어오기
 
+# set ENV variables
+os.environ["OPENAI_API_KEY"] = config["API_KEY1"]
+
 
 def createFeedback(createFeedbackModel):
 
     renderData = {}
     messages = []
-
-    if config["MODEL_NAME"].startswith("gpt"):
-        openai = OpenAI(
-            api_key=config["API_KEY1"],
-        )
-    else:
-        openai = OpenAI(
-            api_key=config["API_KEY2"],
-            base_url="https://api.deepinfra.com/v1/openai",
-        )
 
     #########################################
     # chat Info 추출
@@ -103,7 +97,7 @@ def createFeedback(createFeedbackModel):
     #########################################
     # LLM 처리
     #########################################
-    response = openai.chat.completions.create(
+    response = completion(
         model=config["MODEL_NAME"],
         messages=messages,
         stream=False,
@@ -132,7 +126,6 @@ def createFeedback(createFeedbackModel):
             {
                 "finish_reason": response.choices[0].finish_reason,
                 "index": response.choices[0].index,
-                "logprobs": response.choices[0].logprobs,
                 "message": {
                     "content": response.choices[0].message.content,
                     "role": response.choices[0].message.role,
@@ -141,8 +134,6 @@ def createFeedback(createFeedbackModel):
         ],
         "created": response.created,
         "model": response.model,
-        "object": response.object,
-        "system_fingerprint": response.system_fingerprint,
         "usage": {
             "completion_tokens": response.usage.completion_tokens,
             "prompt_tokens": response.usage.prompt_tokens,
