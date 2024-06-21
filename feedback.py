@@ -47,6 +47,10 @@ def createFeedback(createFeedbackModel):
     # chat Info 추출
     #########################################
     chatInfo = getChat(createFeedbackModel.chatId)
+
+    if not chatInfo:
+        return {"code": "E", "msg": "채팅 정보가 없습니다."}
+
     renderData.update(chatInfo)
     #########################################
     # 자유 발화가 포함된 모듈의 대화내역 추출
