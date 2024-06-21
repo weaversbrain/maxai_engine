@@ -41,7 +41,7 @@ def getTranslation(chatId, text):
         "model": config["MODEL_NAME"],
         "message": messages,
         "stream": False,
-        "max_token": 4096,
+        "max_token": 500,
         "temperature": 0.5,
         "n": 1,
     }
