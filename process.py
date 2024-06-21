@@ -152,15 +152,11 @@ def runEngin6(moduleData: ModuleModel, type: str):
     messages.append(messageData)
 
     if totalChatTurn == 0:
-        # messageData = {"role": "user", "content": "(entered classroom)"}
-        # messages.append(messageData)
-
         createHistoryData = {
             "chatId": moduleData.chatId,
             "userId": chatInfo["userId"],
             "module": moduleInfo["module"],
             "speaker": "USER",
-            "content": "(entered classroom)",
             "message": "(entered classroom)",
             "chatTurn": 0,
         }
@@ -192,7 +188,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
             curChatTurn = row["chatTurn"]
 
     ###########################
-    # 5. USER Answer 처리
+    # USER Answer 처리
     ###########################
     if type == "answer":
         totalChatTurn = totalChatTurn + 1
@@ -209,7 +205,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
         genHistory(createHistoryData)
 
     ###########################
-    # 6. LLM 처리
+    # LLM 처리
     ###########################
     messages.append({"role": "system", "content": f"ChatTurn: {curChatTurn}"})
     start_time = time.time()

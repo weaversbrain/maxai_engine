@@ -35,7 +35,6 @@ def createFeedback(createFeedbackModel):
     if config["MODEL_NAME"].startswith("gpt"):
         openai = OpenAI(
             api_key=config["API_KEY1"],
-            # base_url="https://api.openai.com/v1",
         )
     else:
         openai = OpenAI(
@@ -101,8 +100,6 @@ def createFeedback(createFeedbackModel):
     }
     messages.append(messageData)
 
-    # print(messages)
-
     #########################################
     # LLM 처리
     #########################################
@@ -113,6 +110,50 @@ def createFeedback(createFeedbackModel):
         max_tokens=4096,
         temperature=0.5,
         n=1,
+    )
+
+    ###########################
+    # chatCompletion 등록
+    ###########################
+    # 요청 데이터 내용
+    requestToJson = {
+        "model": config["MODEL_NAME"],
+        "message": messages,
+        "stream": False,
+        "max_token": 4096,
+        "temperature": 0.5,
+        "n": 1,
+    }
+
+    # 응답 데이터 내용
+    responseToJson = {
+        "id": response.id,
+        "choices": [
+            {
+                "finish_reason": response.choices[0].finish_reason,
+                "index": response.choices[0].index,
+                "logprobs": response.choices[0].logprobs,
+                "message": {
+                    "content": response.choices[0].message.content,
+                    "role": response.choices[0].message.role,
+                },
+            }
+        ],
+        "created": response.created,
+        "model": response.model,
+        "object": response.object,
+        "system_fingerprint": response.system_fingerprint,
+        "usage": {
+            "completion_tokens": response.usage.completion_tokens,
+            "prompt_tokens": response.usage.prompt_tokens,
+            "total_tokens": response.usage.total_tokens,
+        },
+    }
+
+    genChatCompletion(
+        chatInfo["id"],
+        requestToJson,
+        responseToJson,
     )
 
     #########################################
@@ -138,3 +179,5 @@ def createFeedback(createFeedbackModel):
         updateData,
         whereData,
     )
+
+    return {"code": "Y", "msg": "성공"}
