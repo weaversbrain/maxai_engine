@@ -33,11 +33,10 @@ config = dotenv_values(abspath + "/.env")  # 환경변수 읽어오기
 
 
 def runEngin6(moduleData: ModuleModel, type: str):
-    renderData = {}
-    messages = []
-    totalChatTurn = 0
-    createdGreetings = ""
 
+    ###########################
+    # 초기 세팅
+    ###########################
     if config["MODEL_NAME"].startswith("gpt"):
         openai = OpenAI(
             api_key=config["API_KEY1"],
@@ -49,25 +48,35 @@ def runEngin6(moduleData: ModuleModel, type: str):
             base_url="https://api.deepinfra.com/v1/openai",
         )
 
-    ###########################
-    # 초기 세팅
-    ###########################
-    saveFile = f"log/chat_{moduleData.chatId}.json"
+    renderData = {}
+    messages = []
+    totalChatTurn = 0
+    pastConversation = ""
+
+    saveFile = f"log/chat_{moduleData.chatId}.json"  # 로그 파일
 
     renderData.update(reused_prompt)
     renderData.update(other_data)
 
     chatInfo = getChat(moduleData.chatId)  # chat Info
     moduleInfo = getModule(moduleData.moduleId)  # module Info
-    lessonInfo = getLessonInfo(chatInfo["lessonId"]) # lesson Info
-    expression = getLessonExpression(chatInfo["lessonId"]) # lesson expression
+    lessonInfo = getLessonInfo(chatInfo["lessonId"])  # lesson Info
+    expression = getLessonExpression(chatInfo["lessonId"])  # lesson expression
 
-    todayExpression = expression['property'] if expression else ""
-    
+    todayExpression = expression["property"] if expression else ""
+
     if not todayExpression:
         return {"code": "E", "msg": "오늘의 표현 정보가 없습니다."}
 
     renderData.update({"todayExpression": todayExpression})
+
+    ###########################
+    # pastConversation 추출
+    ###########################
+    if moduleInfo["module"] == "E6_SMALL_TALK":
+        lastChat = getLastChat(chatInfo["id"], chatInfo["userId"])
+        if lastChat and lastChat["pastConversation"]:
+            renderData.update({"pastConversation": lastChat["pastConversation"]})
 
     ###########################
     # 1. chat Data 가져옴
@@ -81,9 +90,9 @@ def runEngin6(moduleData: ModuleModel, type: str):
         totalChatTurn = 0
     else:
         totalChatTurn = chatInfo["chatTurn"]
-        
-    if chatInfo['createdGreetings']:
-        createdGreetings = chatInfo['createdGreetings']
+
+    if chatInfo["pastConversation"]:
+        pastConversation = chatInfo["pastConversation"]
 
     ###########################
     # 2. initialize 작업
@@ -306,10 +315,10 @@ def runEngin6(moduleData: ModuleModel, type: str):
                 for data in splitData:
                     tmpReturnData.append(data)
                     ###########################
-                    # createdGreetings 처리
+                    # pastConversation 처리
                     ###########################
                     if data["type"] == "smallTalkSummary":
-                        createdGreetings = data["content"]
+                        pastConversation = data["content"]
 
             returnData = workReturnData(moduleInfo["module"], tmpReturnData)
 
@@ -319,7 +328,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     setChatInfo(
         moduleData.chatId,
         escapeListMessages(messages),
-        createdGreetings,
+        pastConversation,
         totalChatTurn,
         moduleInfo["module"],
     )

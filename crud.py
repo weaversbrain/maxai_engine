@@ -36,7 +36,9 @@ def genChat(createChatData: CreateChatModel):
         str(createChatData.lessonId),
         createChatData.userName,
         createChatData.teacherName,
-        escapeText(createChatData.teacherPersona),  # ' 문자 처리
+        escapeText(
+            createChatData.teacherPersona.replace("\n", "").replace("\t", "")
+        ),  # ' 문자 처리
     )
 
     chatId = db.insertDB(sql)
@@ -74,20 +76,28 @@ def setChat(updateData: dict, whereData: dict):
 def setChatInfo(
     chatId: int,
     messages: Union[str, None] = None,
-    createdGreetings: Union[str, None] = None,
+    pastConversation: Union[str, None] = None,
     chatTurn: int = 0,
     currentModule: int = 0,
 ):
     db = Database("mysql")
-    sql = (
-        """UPDATE chat SET messages = '%s',createdGreetings='%s', chatTurn=%d,currentModule='%s'  WHERE id = %d"""
-        % (
-            escapeText(json.dumps(messages, ensure_ascii=False)),
-            escapeText(createdGreetings) if createdGreetings else "",
-            chatTurn,
-            currentModule,
-            chatId,
-        )
+    sql = """
+            UPDATE 
+                chat 
+            SET 
+                messages = '%s', 
+                pastConversation='%s', 
+                chatTurn=%d, 
+                currentModule='%s',
+                updatedAt = NOW()
+            WHERE 
+                id = %d
+        """ % (
+        escapeText(json.dumps(messages, ensure_ascii=False)),
+        escapeText(pastConversation) if pastConversation else "",
+        chatTurn,
+        currentModule,
+        chatId,
     )
     chatId = db.updateDB(sql)
     return chatId
@@ -234,6 +244,27 @@ def getModule(moduleId: int):
     lessonInfo = db.readDB(sql)
 
     return lessonInfo
+
+
+def getLastChat(chatId: int, userId: int):
+    db = Database("mysql")
+
+    sql = f"""
+        SELECT 
+            *
+        FROM
+            engine6.chat
+        WHERE
+            id = '{chatId}'
+            AND userId = '{userId}'
+            AND id < '{chatId}'
+        ORDER BY
+            id DESC
+        LIMIT 1
+    """
+    lastChatInfo = db.readDB(sql)
+
+    return lastChatInfo
 
 
 def genChatCompletion(chatId, request, response):
