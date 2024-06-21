@@ -20,9 +20,9 @@ def genBaseFormat(module):
 def getTranslation(chatId, text):
     prompt = f"Translate the following sentence into Korean: <Sentence to Translate>{text}</Sentence to Translate>"
 
-    messages = {}
-    messages.update({"role": "assistant", "content": text})
-    messages.update({"role": "system", "content": prompt})
+    messages = []
+    messages.append({"role": "assistant", "content": text})
+    messages.append({"role": "system", "content": prompt})
 
     response = completion(
         model=config["MODEL_NAME"],
