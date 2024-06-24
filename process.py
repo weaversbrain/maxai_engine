@@ -35,6 +35,15 @@ os.environ["OPENAI_API_KEY"] = config["API_KEY1"]
 
 def runEngin6(moduleData: ModuleModel, type: str):
 
+    #########################################
+    # set LLM options
+    #########################################
+    MODEL = config["MODEL_NAME"]
+    STREAM = False
+    MAX_TOKEN = 500
+    TEMPERATURE = 0.5
+    NUM = 1
+
     ###########################
     # 초기 세팅
     ###########################
@@ -204,21 +213,21 @@ def runEngin6(moduleData: ModuleModel, type: str):
     start_time = time.time()
 
     response = completion(
-        model=config["MODEL_NAME"],
+        model=MODEL,
         messages=messages,
-        stream=False,
-        max_tokens=500,
-        temperature=0.5,
-        n=1,
+        stream=STREAM,
+        max_tokens=MAX_TOKEN,
+        temperature=TEMPERATURE,
+        n=NUM,
     )
 
     requestToJson = {
-        "model": config["MODEL_NAME"],
+        "model": MODEL,
         "message": messages,
-        "stream": False,
-        "max_token": 500,
-        "temperature": "0.5",
-        "n": 1,
+        "stream": STREAM,
+        "max_token": MAX_TOKEN,
+        "temperature": TEMPERATURE,
+        "n": NUM,
     }
 
     responseToJson = {

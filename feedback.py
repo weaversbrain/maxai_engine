@@ -32,7 +32,18 @@ os.environ["OPENAI_API_KEY"] = config["API_KEY1"]
 
 
 def createFeedback(createFeedbackModel):
+    #########################################
+    # set LLM options
+    #########################################
+    MODEL = config["MODEL_NAME"]
+    STREAM = False
+    MAX_TOKEN = 4096
+    TEMPERATURE = 0.5
+    NUM = 1
 
+    #########################################
+    # init variables
+    #########################################
     renderData = {}
     messages = []
 
@@ -98,12 +109,12 @@ def createFeedback(createFeedbackModel):
     # LLM 처리
     #########################################
     response = completion(
-        model=config["MODEL_NAME"],
+        model=MODEL,
         messages=messages,
-        stream=False,
-        max_tokens=4096,
-        temperature=0.5,
-        n=1,
+        stream=STREAM,
+        max_tokens=MAX_TOKEN,
+        temperature=TEMPERATURE,
+        n=NUM,
     )
 
     ###########################
@@ -111,12 +122,12 @@ def createFeedback(createFeedbackModel):
     ###########################
     # 요청 데이터 내용
     requestToJson = {
-        "model": config["MODEL_NAME"],
+        "model": MODEL,
         "message": messages,
-        "stream": False,
-        "max_token": 4096,
-        "temperature": 0.5,
-        "n": 1,
+        "stream": STREAM,
+        "max_token": MAX_TOKEN,
+        "temperature": TEMPERATURE,
+        "n": NUM,
     }
 
     # 응답 데이터 내용
