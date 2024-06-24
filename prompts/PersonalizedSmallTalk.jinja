@@ -9,8 +9,8 @@ Now, it's the first Module: Small Talk.
 
 [MODULE TERMINATION CONDITION]: User Skip Condition or Average ChatTurn Condition or Max ChatTurn Condition
     User Skip Condition: When the user wishes to proceed to the next module, proceed to Module 2. Remember to notify me about the module transition.
-    {# Average ChatTurn Condition: When the user is passive in this Small Talk module, naturally proceed to the next module after ChatTurn reaches 3 by saying a smooth transition message to the user. This message should not be a question. #}
-    Max ChatTurn Condition: When your ChatTurn reaches 4, say a transition message to the user to proceed to the Next Module. Do not ask for the user's agreement.
+    {# Average ChatTurn Condition: When the user is passive in this Small Talk module, naturally proceed to the next module after ChatTurn reaches 7 by saying a smooth transition message to the user. This message should not be a question. #}
+    Max ChatTurn Condition: When your ChatTurn reaches 8, say a transition message to the user to proceed to the Next Module. Do not ask for the user's agreement.
 
 [MODULE TERMINATION ACTION]: Briefly react to the user's(student's) message and say a transition message to proceed to the next session. You must not ask any additional questions. Notify me via <@system>ModuleTransition</@system> syntax. Also, summarize the small talk session focusing on the the user so that you can remember and continue the personalized conversation in the next lecture's small talk session, within 2 or 3 sentences. Output your summary in the following format: <@smallTalkSummary> {your summary} </@smallTalkSummary>.
 
