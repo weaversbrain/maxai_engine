@@ -62,14 +62,6 @@ def runEngin6(moduleData: ModuleModel, type: str):
     renderData.update({"todayExpression": todayExpression})
 
     ###########################
-    # pastConversation 추출
-    ###########################
-    if moduleInfo["module"] == "E6_SMALL_TALK":
-        lastChat = getLastChat(chatInfo["id"], chatInfo["userId"])
-        if lastChat and lastChat["pastConversation"]:
-            renderData.update({"pastConversation": lastChat["pastConversation"]})
-
-    ###########################
     # 1. chat Data 가져옴
     ###########################
 
@@ -84,6 +76,15 @@ def runEngin6(moduleData: ModuleModel, type: str):
 
     if chatInfo["pastConversation"]:
         pastConversation = chatInfo["pastConversation"]
+
+    ###########################
+    # pastConversation 추출
+    ###########################
+    if moduleInfo["module"] == "E6_SMALL_TALK":
+        lastChat = getLastChat(chatInfo["id"], chatInfo["userId"])
+
+        if lastChat and lastChat["pastConversation"]:
+            renderData.update({"pastConversation": lastChat["pastConversation"]})
 
     ###########################
     # 2. initialize 작업
@@ -291,8 +292,6 @@ def runEngin6(moduleData: ModuleModel, type: str):
 
             tmpData = msg.replace("\n\n", "\n")
             statementArr = tmpData.split("\n")
-
-            print(statementArr)
 
             for statement in statementArr:
                 splitData = extractTagsFromSentence(statement)
