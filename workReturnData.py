@@ -12,6 +12,15 @@ config = dotenv_values(abspath + "/.env")  # 환경변수 읽어오기
 # set ENV variables
 os.environ["OPENAI_API_KEY"] = config["API_KEY1"]
 
+#########################################
+# set LLM options
+#########################################
+MODEL = config["MODEL_NAME"]
+STREAM = False
+MAX_TOKEN = 500
+TEMPERATURE = 0.5
+NUM = 1
+
 
 def genBaseFormat(module):
     return {"module": module, "answerList": [], "hintList": [], "status": "ing"}
@@ -25,12 +34,12 @@ def getTranslation(chatId, text):
     messages.append({"role": "system", "content": prompt})
 
     response = completion(
-        model=config["MODEL_NAME"],
+        model=MODEL,
         messages=messages,
-        stream=False,
-        max_tokens=500,
-        temperature=0.5,
-        n=1,
+        stream=STREAM,
+        max_tokens=MAX_TOKEN,
+        temperature=TEMPERATURE,
+        n=NUM,
     )
 
     ###########################
@@ -38,12 +47,12 @@ def getTranslation(chatId, text):
     ###########################
     # 요청 데이터 내용
     requestToJson = {
-        "model": config["MODEL_NAME"],
+        "model": MODEL,
         "message": messages,
-        "stream": False,
-        "max_token": 500,
-        "temperature": 0.5,
-        "n": 1,
+        "stream": STREAM,
+        "max_token": MAX_TOKEN,
+        "temperature": TEMPERATURE,
+        "n": NUM,
     }
 
     # 응답 데이터 내용

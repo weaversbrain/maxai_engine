@@ -35,6 +35,15 @@ os.environ["OPENAI_API_KEY"] = config["API_KEY1"]
 
 def runEngin6(moduleData: ModuleModel, type: str):
 
+    #########################################
+    # set LLM options
+    #########################################
+    MODEL = config["MODEL_NAME"]
+    STREAM = False
+    MAX_TOKEN = 500
+    TEMPERATURE = 0.5
+    NUM = 1
+
     ###########################
     # 초기 세팅
     ###########################
@@ -44,7 +53,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     pastConversation = ""
     userChatStatementId = 0
 
-    saveFile = f"log/chat_{moduleData.chatId}.json"  # 로그 파일
+    # saveFile = f"log/chat_{moduleData.chatId}.json"  # 로그 파일
 
     renderData.update(reused_prompt)
     renderData.update(other_data)
@@ -62,14 +71,6 @@ def runEngin6(moduleData: ModuleModel, type: str):
     renderData.update({"todayExpression": todayExpression})
 
     ###########################
-    # pastConversation 추출
-    ###########################
-    if moduleInfo["module"] == "E6_SMALL_TALK":
-        lastChat = getLastChat(chatInfo["id"], chatInfo["userId"])
-        if lastChat and lastChat["pastConversation"]:
-            renderData.update({"pastConversation": lastChat["pastConversation"]})
-
-    ###########################
     # 1. chat Data 가져옴
     ###########################
 
@@ -84,6 +85,15 @@ def runEngin6(moduleData: ModuleModel, type: str):
 
     if chatInfo["pastConversation"]:
         pastConversation = chatInfo["pastConversation"]
+
+    ###########################
+    # pastConversation 추출
+    ###########################
+    if moduleInfo["module"] == "E6_SMALL_TALK":
+        lastChat = getLastChat(chatInfo["id"], chatInfo["userId"])
+
+        if lastChat and lastChat["pastConversation"]:
+            renderData.update({"pastConversation": lastChat["pastConversation"]})
 
     ###########################
     # 2. initialize 작업
@@ -203,21 +213,21 @@ def runEngin6(moduleData: ModuleModel, type: str):
     start_time = time.time()
 
     response = completion(
-        model=config["MODEL_NAME"],
+        model=MODEL,
         messages=messages,
-        stream=False,
-        max_tokens=500,
-        temperature=0.5,
-        n=1,
+        stream=STREAM,
+        max_tokens=MAX_TOKEN,
+        temperature=TEMPERATURE,
+        n=NUM,
     )
 
     requestToJson = {
-        "model": config["MODEL_NAME"],
+        "model": MODEL,
         "message": messages,
-        "stream": False,
-        "max_token": 500,
-        "temperature": "0.5",
-        "n": 1,
+        "stream": STREAM,
+        "max_token": MAX_TOKEN,
+        "temperature": TEMPERATURE,
+        "n": NUM,
     }
 
     responseToJson = {
@@ -292,8 +302,6 @@ def runEngin6(moduleData: ModuleModel, type: str):
             tmpData = msg.replace("\n\n", "\n")
             statementArr = tmpData.split("\n")
 
-            print(statementArr)
-
             for statement in statementArr:
                 splitData = extractTagsFromSentence(statement)
 
@@ -335,13 +343,13 @@ def runEngin6(moduleData: ModuleModel, type: str):
     )
 
     # 디버깅용 chat.json 파일 저장
-    save_state(
-        filename=saveFile,
-        messages=messages,
-        total_chat_turn=totalChatTurn,
-        cur_module_chat_turn=curChatTurn,
-        current_module=moduleInfo["module"],
-    )
+    # save_state(
+    #     filename=saveFile,
+    #     messages=messages,
+    #     total_chat_turn=totalChatTurn,
+    #     cur_module_chat_turn=curChatTurn,
+    #     current_module=moduleInfo["module"],
+    # )
 
     ###########################
     # 8. 반환
