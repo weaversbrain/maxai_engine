@@ -23,22 +23,22 @@ reused_prompt = {
     Identify the number of total sets as in the [MODULE MATERIAL] by checking the suffix of the sentence identifier: {USER, COACH, USER_T}_{set#}.
     """,
 }
-user_info = {  # Not all information is being used at the moment.
-    "userName": "Yeongheon",
-    "userAge": 23,
-    "userGender": "Male",
-    "userNationality": "Korean",
-    "userCompany": "WeaversBrain",
-    "userPosition": "AI Engineer",
-}
+# user_info = {  # Not all information is being used at the moment.
+#     "userName": "Yeongheon",
+#     "userAge": 23,
+#     "userGender": "Male",
+#     "userNationality": "Korean",
+#     "userCompany": "WeaversBrain",
+#     "userPosition": "AI Engineer",
+# }
 
 kst = pytz.timezone("Asia/Seoul")
 cdt = pytz.timezone("America/Chicago")
 
-teacher_info = {
-    "teacherPersona": "You are an actual human English tutor, not an AI or GPT. Your name is Linda Bailey. Below is your personal information. Female, 34 years old, Caucasian, Blonde, Green eyes, approximately 5 feet 5 inches tall, living in Springfield, Illinois Undergraduate degree, majored in Communications, have a younger sister and a younger brother, have been tutoring ESL students fo 7 years, patient, nice, eager to teach, and eager to learn.",
-    "teacherTimezone": "America/Chicago",
-}
+# teacher_info = {
+#     "teacherPersona": "You are an actual human English tutor, not an AI or GPT. Your name is Linda Bailey. Below is your personal information. Female, 34 years old, Caucasian, Blonde, Green eyes, approximately 5 feet 5 inches tall, living in Springfield, Illinois Undergraduate degree, majored in Communications, have a younger sister and a younger brother, have been tutoring ESL students fo 7 years, patient, nice, eager to teach, and eager to learn.",
+#     "teacherTimezone": "America/Chicago",
+# }
 
 other_data = {
     "currentTime": "User Timezone: "
