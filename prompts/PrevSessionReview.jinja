@@ -23,7 +23,7 @@ Previous Module: Small Talk
 [MODULE TERMINATION CONDITION]: Full Coverage Condition or Max ChatTurn Condition or No Prev Session Condition
     You cannot perform [MODULE TERMINATION ACTION] unless the [MODULE TERMINATION CONDITION] is met.
     Full Coverage Condition: When all questions are {passed}, go through [MODULE TERMINATION ACTION].
-    Max ChatTurn Condition: When your ChatTurn reaches 15, make a gentle excuse and go through [MODULE TERMINATION ACTION].   
+    Max ChatTurn Condition: When your ChatTurn reaches 25, make a gentle excuse and go through [MODULE TERMINATION ACTION].   
     No Prev Session Condition: When there was no previous session with the user, don't mention about this module and go straight to [MODULE TERMINATION ACTION].
 
 [MODULE TERMINATION ACTION]: Say a natural transition message to proceed to the next session without giving the user a chance to speak. Notify me via <@system>{termination_condition}; ModuleTransition</@system> syntax.
