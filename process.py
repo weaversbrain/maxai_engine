@@ -44,7 +44,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     pastConversation = ""
     userChatStatementId = 0
 
-    saveFile = f"log/chat_{moduleData.chatId}.json"  # 로그 파일
+    # saveFile = f"log/chat_{moduleData.chatId}.json"  # 로그 파일
 
     renderData.update(reused_prompt)
     renderData.update(other_data)
@@ -334,13 +334,13 @@ def runEngin6(moduleData: ModuleModel, type: str):
     )
 
     # 디버깅용 chat.json 파일 저장
-    save_state(
-        filename=saveFile,
-        messages=messages,
-        total_chat_turn=totalChatTurn,
-        cur_module_chat_turn=curChatTurn,
-        current_module=moduleInfo["module"],
-    )
+    # save_state(
+    #     filename=saveFile,
+    #     messages=messages,
+    #     total_chat_turn=totalChatTurn,
+    #     cur_module_chat_turn=curChatTurn,
+    #     current_module=moduleInfo["module"],
+    # )
 
     ###########################
     # 8. 반환
