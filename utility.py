@@ -151,7 +151,7 @@ def load_state(filename="chat_state.json"):
         return FileNotFoundError
 
 
-def str2numtoken(message_list, model_name="gpt-4-turbo"):
+def getTokenNums(message_list, model_name="gpt-4-turbo"):
     if isinstance(message_list, str):
         input_str = message_list
     else:
@@ -163,7 +163,7 @@ def str2numtoken(message_list, model_name="gpt-4-turbo"):
     return num_tokens
 
 
-def token2cost(num_tokens, model_name="gpt-4-turbo", mode="input"):
+def getTokenCost(num_tokens, model_name="gpt-4-turbo", mode="input"):
     assert mode in ("input", "output")
     return (
         {
@@ -242,3 +242,29 @@ def listIndexExist(arr, i):
 def removeBraces(text):
     result = text.replace("{", "").replace("}", "")
     return result
+
+
+# OpenAI API 사용 비용을 계산하는 함수
+def calculateTokenCost(model, inputToken, outputToken):
+
+    if not model or not inputToken or not outputToken:
+        return None
+
+    modelDict = {
+        "gpt-4o": (0.000005, 0.000015),  # $5, $15
+        "gpt-4o-2024-05-13": (0.000005, 0.000015),  # $5, $15
+        "gpt-3.5-turbo-0125": (0.0000005, 0.0000015),  # $0.5$, $1.5
+        "gpt-3.5-turbo-instruct": (0.0000015, 0.000002),  # 1.5$, $2
+    }
+
+    if model in modelDict:
+        price = modelDict[model]
+
+        inputPrice = inputToken * price[0]
+        outputPrice = outputToken * price[1]
+
+        totalPrice = inputPrice + outputPrice
+
+        return (inputPrice, outputPrice, totalPrice)
+    else:
+        return None

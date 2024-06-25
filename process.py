@@ -251,6 +251,14 @@ def runEngin6(moduleData: ModuleModel, type: str):
         },
     }
 
+    # token 개수 구함
+    inputTokens = getTokenNums(messages)
+    outputTokens = getTokenNums(response.choices[0].message.content)
+
+    # 토큰 비용 계산
+    inputCost = getTokenCost(inputTokens, MODEL, "input")
+    outputCost = getTokenCost(outputTokens, MODEL, "output")
+
     gptMsgArr = []
     returnData = []
 
@@ -336,11 +344,17 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     # chatCompletion 등록
     ###########################
-    genChatCompletion(
-        chatInfo["id"],
-        requestToJson,
-        responseToJson,
-    )
+    completionData = {
+        "chatId": chatInfo['id'],
+        "request": requestToJson,
+        "response": responseToJson,
+        "inputTokens": inputTokens,
+        "outputTokens": outputTokens,
+        "inputCost": inputCost,
+        "outputCost": outputCost
+    }
+    
+    genChatCompletion(completionData)
 
     # 디버깅용 chat.json 파일 저장
     # save_state(

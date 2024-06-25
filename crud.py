@@ -266,10 +266,10 @@ def getLastChat(chatId: int, userId: int):
     return lastChatInfo
 
 
-def genChatCompletion(chatId, request, response):
+def genChatCompletion(CreateChatCompletionModel):
     db = Database("mysql")
     sql = """
-        INSERT INTO engine6.chatCompletionLog 
+        INSERT INTO engine6.chatCompletionLog_bak 
         SET
             id                  = '{}',
             chatId              = '{}',
@@ -277,19 +277,40 @@ def genChatCompletion(chatId, request, response):
             response            = '{}',
             model               = '{}',
             created             = '{}',
-            completion_tokens   = '{}',
-            prompt_tokens       = '{}',
-            total_tokens        = '{}'
+            completionTokens    = '{}',
+            promptTokens        = '{}',
+            totalRequestTokens  = '{}',
+            inputTokens         = '{}',
+            outputTokens        = '{}',
+            totalTokens         = '{}',
+            inputCost           = '{:.4f}',
+            outputCost          = '{:.4f}',
+            totalCost           = '{:.4f}'
     """.format(
-        response["id"],
-        chatId,
-        escapeText(json.dumps(request, ensure_ascii=False)),
-        escapeText(json.dumps(response, ensure_ascii=False)),
-        response["model"],
-        response["created"],
-        response["usage"]["completion_tokens"],
-        response["usage"]["prompt_tokens"],
-        response["usage"]["total_tokens"],
+        CreateChatCompletionModel["response"]["id"],
+        CreateChatCompletionModel["chatId"],
+        escapeText(
+            json.dumps(CreateChatCompletionModel["request"], ensure_ascii=False)
+        ),
+        escapeText(
+            json.dumps(CreateChatCompletionModel["response"], ensure_ascii=False)
+        ),
+        CreateChatCompletionModel["response"]["model"],
+        CreateChatCompletionModel["response"]["created"],
+        CreateChatCompletionModel["response"]["usage"]["completion_tokens"],
+        CreateChatCompletionModel["response"]["usage"]["prompt_tokens"],
+        CreateChatCompletionModel["response"]["usage"]["total_tokens"],
+        CreateChatCompletionModel["inputTokens"],
+        CreateChatCompletionModel["outputTokens"],
+        CreateChatCompletionModel["inputTokens"]
+        + CreateChatCompletionModel["outputTokens"],
+        CreateChatCompletionModel["inputCost"],
+        CreateChatCompletionModel["outputCost"],
+        CreateChatCompletionModel["inputCost"]
+        + CreateChatCompletionModel["outputCost"],
     )
+
+    print(sql)
+
     insertId = db.insertDB(sql)
     return insertId

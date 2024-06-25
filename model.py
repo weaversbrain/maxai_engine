@@ -53,3 +53,13 @@ class ModuleListData(BaseModel):
 class CreateFeedbackModel(BaseModel):
     chatId: int = 0
     userId: int = 0
+
+
+class CreateChatCompletionModel(BaseModel):
+    chatId: int = 0
+    request: Optional[str] = None
+    response: Optional[str] = None
+    inputToken: int = 0
+    outputToken: int = 0
+    inputTokenCost: int = 0
+    outputTokenCost: int = 0

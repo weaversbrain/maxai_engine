@@ -152,11 +152,28 @@ def createFeedback(createFeedbackModel):
         },
     }
 
-    genChatCompletion(
-        chatInfo["id"],
-        requestToJson,
-        responseToJson,
-    )
+    # token 개수 구함
+    inputTokens = getTokenNums(messages)
+    outputTokens = getTokenNums(response.choices[0].message.content)
+
+    # 토큰 비용 계산
+    inputCost = getTokenCost(inputTokens, MODEL, "input")
+    outputCost = getTokenCost(outputTokens, MODEL, "output")
+
+    ###########################
+    # chatCompletion 등록
+    ###########################
+    completionData = {
+        "chatId": chatInfo["id"],
+        "request": requestToJson,
+        "response": responseToJson,
+        "inputTokens": inputTokens,
+        "outputTokens": outputTokens,
+        "inputCost": inputCost,
+        "outputCost": outputCost,
+    }
+
+    genChatCompletion(completionData)
 
     #########################################
     # 데이터 가공
