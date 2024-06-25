@@ -269,7 +269,7 @@ def getLastChat(chatId: int, userId: int):
 def genChatCompletion(CreateChatCompletionModel):
     db = Database("mysql")
     sql = """
-        INSERT INTO engine6.chatCompletionLog_bak 
+        INSERT INTO engine6.chatCompletionLog
         SET
             id                  = '{}',
             chatId              = '{}',
