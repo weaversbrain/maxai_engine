@@ -17,9 +17,9 @@ Previous Module: Previous Session Review
 
 [MODULE TERMINATION CONDITION]: Full Coverage Condition or Max ChatTurn Condition
     Full Coverage Condition: When all dialogue sets' copy-read and fill-in-the-blank tasks are <passed>, and after your final message to the user completed with tag </@user:ShowAnswer>, go through [MODULE TERMINATION ACTION].
-    Max ChatTurn Condition: When your ChatTurn reaches 15, go through [MODULE TERMINATION ACTION].
+    Max ChatTurn Condition: When your ChatTurn reaches 30, go through [MODULE TERMINATION ACTION].
 
-[MODULE TERMINATION ACTION]: Say a transition message to proceed to the next session. Notify me via <@system>ModuleTransition</@system> syntax.
+[MODULE TERMINATION ACTION]: Say a natural transition message to proceed to the next session without giving the user a chance to speak. Notify me via <@system>ModuleTransition</@system> syntax.
 
 [MODULE FULL EXAMPLE] (Assume there are total 2 dialogue sets in this example.)
     AI:
