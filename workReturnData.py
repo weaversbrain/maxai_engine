@@ -4,6 +4,7 @@ from utility import *
 from dotenv import dotenv_values
 from crud import *
 import os
+import time
 
 # 절대경로
 abspath = os.path.dirname(os.path.abspath(__file__))
@@ -33,6 +34,7 @@ def getTranslation(chatId, text):
     messages.append({"role": "assistant", "content": text})
     messages.append({"role": "system", "content": prompt})
 
+    llmStartTime = time.time()
     response = completion(
         model=MODEL,
         messages=messages,
@@ -41,6 +43,9 @@ def getTranslation(chatId, text):
         temperature=TEMPERATURE,
         n=NUM,
     )
+    llmEndTime = time.time()
+    
+    llmTime = llmEndTime - llmStartTime
 
     ###########################
     # chatCompletion 등록
@@ -96,11 +101,13 @@ def getTranslation(chatId, text):
         "outputTokens": outputTokens,
         "inputCost": inputCost,
         "outputCost": outputCost,
+        "llmTime": llmTime,
+        "totalTime": llmTime
     }
 
-    genChatCompletion(completionData)
-
-    return cleanHtml(response.choices[0].message.content).strip()
+    completionIdx = genChatCompletion(completionData)
+    translation = cleanHtml(response.choices[0].message.content).strip()
+    return {"completionIdx": completionIdx, "translation": translation}
 
 
 # 다이얼로그 데이터 가공
@@ -108,7 +115,10 @@ def workReturnData(chatId, module, splitList):
     if not chatId or not module or not splitList:
         return None
 
+    totalStartTime = time.time()
+
     hintList = []
+    completionIdx = None
 
     baseFormat = genBaseFormat(module)
 
@@ -127,11 +137,15 @@ def workReturnData(chatId, module, splitList):
         #########################################
         if data["type"] == "user":
 
+            translationData = getTranslation(chatId, data["content"])
+
+            completionIdx = translationData["completionIdx"]
+
             answerData = {
                 "type": "user",
                 "speaker": "AI",
                 "content": data["content"],
-                "translation": getTranslation(chatId, data["content"]),
+                "translation": translationData["translation"],
             }
 
             #########################################
@@ -335,5 +349,17 @@ def workReturnData(chatId, module, splitList):
     # 힌트, 모듈 상태값 추가
     #########################################
     baseFormat["hintList"] = hintList
+
+    totalEndTime = time.time()  # 전체 종료 시간
+    
+    totalTime = totalEndTime - totalStartTime
+
+    if completionIdx:
+        updateData = {
+            "totalTime": "{:.4f}".format(totalEndTime - totalStartTime),
+        }
+
+        whereData = {"idx": completionIdx}
+        setChatCompletion(updateData, whereData)
 
     return baseFormat

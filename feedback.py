@@ -22,6 +22,7 @@ from dotenv import dotenv_values
 from prompt_base import templates
 import os
 import json
+import time
 
 # 절대경로
 abspath = os.path.dirname(os.path.abspath(__file__))
@@ -32,6 +33,9 @@ os.environ["OPENAI_API_KEY"] = config["API_KEY1"]
 
 
 def createFeedback(createFeedbackModel):
+
+    totalStartTime = time.time()
+
     #########################################
     # set LLM options
     #########################################
@@ -108,6 +112,7 @@ def createFeedback(createFeedbackModel):
     #########################################
     # LLM 처리
     #########################################
+    llmStartTime = time.time()
     response = completion(
         model=MODEL,
         messages=messages,
@@ -116,6 +121,8 @@ def createFeedback(createFeedbackModel):
         temperature=TEMPERATURE,
         n=NUM,
     )
+    llmEndTime = time.time()
+    llmTime = llmEndTime - llmStartTime
 
     ###########################
     # chatCompletion 등록
@@ -160,21 +167,6 @@ def createFeedback(createFeedbackModel):
     inputCost = getTokenCost(inputTokens, MODEL, "input")
     outputCost = getTokenCost(outputTokens, MODEL, "output")
 
-    ###########################
-    # chatCompletion 등록
-    ###########################
-    completionData = {
-        "chatId": chatInfo["id"],
-        "request": requestToJson,
-        "response": responseToJson,
-        "inputTokens": inputTokens,
-        "outputTokens": outputTokens,
-        "inputCost": inputCost,
-        "outputCost": outputCost,
-    }
-
-    genChatCompletion(completionData)
-
     #########################################
     # 데이터 가공
     #########################################
@@ -198,5 +190,25 @@ def createFeedback(createFeedbackModel):
         updateData,
         whereData,
     )
+
+    totalEndTime = time.time()  # 전체 종료 시간
+    totalTime = totalEndTime - totalStartTime
+
+    ###########################
+    # chatCompletion 등록
+    ###########################
+    completionData = {
+        "chatId": chatInfo["id"],
+        "request": requestToJson,
+        "response": responseToJson,
+        "inputTokens": inputTokens,
+        "outputTokens": outputTokens,
+        "inputCost": inputCost,
+        "outputCost": outputCost,
+        "llmTime": llmTime,
+        "totalTime": totalTime,
+    }
+
+    genChatCompletion(completionData)
 
     return {"code": "Y", "msg": "성공"}

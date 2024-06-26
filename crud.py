@@ -285,7 +285,9 @@ def genChatCompletion(CreateChatCompletionModel):
             totalTokens         = '{}',
             inputCost           = '{:.4f}',
             outputCost          = '{:.4f}',
-            totalCost           = '{:.4f}'
+            totalCost           = '{:.4f}',
+            llmTime             = '{:.4f}',
+            totalTime           = '{:.4f}'
     """.format(
         CreateChatCompletionModel["response"]["id"],
         CreateChatCompletionModel["chatId"],
@@ -308,9 +310,37 @@ def genChatCompletion(CreateChatCompletionModel):
         CreateChatCompletionModel["outputCost"],
         CreateChatCompletionModel["inputCost"]
         + CreateChatCompletionModel["outputCost"],
+        CreateChatCompletionModel["llmTime"],
+        CreateChatCompletionModel["totalTime"],
     )
-
-    print(sql)
 
     insertId = db.insertDB(sql)
     return insertId
+
+
+def setChatCompletion(updateData: dict, whereData: dict):
+    updateSql = ""
+    whereSql = " WHERE 1=1"
+
+    if len(updateData) < 1 or len(whereData) < 1:
+        return None
+
+    # update 값 세팅
+    for key, val in updateData.items():
+        updateSql += f"{key} = '{val}',"
+
+    updateSql = updateSql[:-1]  # 마지막 , 제거
+
+    # where 값 세팅
+    for key, val in whereData.items():
+        whereSql += f" AND {key} = '{val}'"
+
+    db = Database("mysql")
+    sql = f"""
+            UPDATE
+                engine6.chatCompletionLog    
+            SET
+                {updateSql}
+            {whereSql}
+    """
+    db.updateDB(sql)

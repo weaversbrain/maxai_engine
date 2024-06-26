@@ -35,6 +35,8 @@ os.environ["OPENAI_API_KEY"] = config["API_KEY1"]
 
 def runEngin6(moduleData: ModuleModel, type: str):
 
+    totalStartTime = time.time()  # 전체 로직 시작 시간
+
     #########################################
     # set LLM options
     #########################################
@@ -210,8 +212,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
     # LLM 처리
     ###########################
     messages.append({"role": "system", "content": f"ChatTurn: {curChatTurn}"})
-    start_time = time.time()
-
+    llmStartTime = time.time()
     response = completion(
         model=MODEL,
         messages=messages,
@@ -220,6 +221,8 @@ def runEngin6(moduleData: ModuleModel, type: str):
         temperature=TEMPERATURE,
         n=NUM,
     )
+    llmEndTime = time.time()
+    llmTime = llmEndTime - llmStartTime
 
     requestToJson = {
         "model": MODEL,
@@ -330,6 +333,9 @@ def runEngin6(moduleData: ModuleModel, type: str):
 
             returnData = workedData
 
+    totalEndTime = time.time()  # 전체 로직 종료 시간
+    totalTime = totalEndTime - totalStartTime
+
     ###########################
     # chat 업데이트
     ###########################
@@ -345,15 +351,17 @@ def runEngin6(moduleData: ModuleModel, type: str):
     # chatCompletion 등록
     ###########################
     completionData = {
-        "chatId": chatInfo['id'],
+        "chatId": chatInfo["id"],
         "request": requestToJson,
         "response": responseToJson,
         "inputTokens": inputTokens,
         "outputTokens": outputTokens,
         "inputCost": inputCost,
-        "outputCost": outputCost
+        "outputCost": outputCost,
+        "llmTime": llmTime,
+        "totalTime": totalTime,
     }
-    
+
     genChatCompletion(completionData)
 
     # 디버깅용 chat.json 파일 저장
