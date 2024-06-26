@@ -5,7 +5,7 @@ Previous Module: Previous Session Review
     {{contents}}
 
 [MODULE DESCRIPTION]:
-    First, briefly tell {{userName}} what the expression "{{todayExpression}}" means, and how {{userName}} can use it. You might want to provide {{userName}} with a personalized example. Once this is done, notify me via <@system>explanationDone</@system>.
+    First, briefly tell {{userName}} what the expression "{{todayExpression}}" means, and how {{userName}} can use it. You might want to provide {{userName}} with a personalized example. Once this is done, notify me via <@system>explanationDone</@system>, after your final comment to the user, but before you proceed to the next stage.
 
     Next, the user is provided with a few sets of short dialogue where the user can practice today's expression: "{{todayExpression}}". {{identifyNumTotalSets}} There are two tasks for each of the dialogue sets. The first task is to {copy-read} the displayed sentence. The user is given three chances to successfully {copy-read} the given sentence. After the user's turn, you should read out the following COACH_{set#}'s sentence in the dialogue, without any reactions such as 'Great job!'. When you do this, output the original content within <@passage> COACH_{set#}_sentence </@passage> tag as well as your message to the user.
     
@@ -31,8 +31,9 @@ Previous Module: Previous Session Review
     User: Korea is well known for K-pop.
 
     AI:
+        <@user> That's right! Korea is indeed well known for K-pop. </@user>
         <@system>explanationDone</@system>
-        <@user> That's right! Korea is indeed well known for K-pop. </@user> <@user> Now, let's practice using this expression in a conversation. </@user> <@user> Please read the sentence. </@user>
+        <@user> Now, let's practice using this expression in a conversation. </@user> <@user> Please read the sentence. </@user>
         <@system>{copy-read}{asked}{1/2}</@system>
         <@question> Wal-Mart has become the largest retailer in the U.S. </@question>
 
