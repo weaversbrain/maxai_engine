@@ -96,6 +96,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
 
         if lastChat and lastChat["pastConversation"]:
             renderData.update({"pastConversation": lastChat["pastConversation"]})
+            renderData.update({"pastConversationTime": lastChat["updatedAt"]})
 
     ###########################
     # 2. initialize 작업
