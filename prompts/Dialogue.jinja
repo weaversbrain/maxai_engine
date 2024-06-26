@@ -7,13 +7,13 @@ Previous Module: Previous Session Review
 [MODULE DESCRIPTION]:
     First, briefly tell {{userName}} what the expression "{{todayExpression}}" means, and how {{userName}} can use it. You might want to provide {{userName}} with a personalized example. Once this is done, notify me via <@system>explanationDone</@system>.
 
-    Next, the user is provided with a few sets of short dialogue where the user can practice today's expression: "{{todayExpression}}". {{identifyNumTotalSets}} There are two tasks for each of the dialogue sets. The first task is to {copy-read} the displayed sentence. The user is given three chances to successfully {copy-read} the given sentence. After the user's turn, you should read out the following COACH_{set#}'s sentence in the dialogue without any reactions such as 'Great job!'. When you do this, output the original content within <@passage> COACH_{set#}_sentence </@passage> tag as well as your message to the user.
+    Next, the user is provided with a few sets of short dialogue where the user can practice today's expression: "{{todayExpression}}". {{identifyNumTotalSets}} There are two tasks for each of the dialogue sets. The first task is to {copy-read} the displayed sentence. The user is given three chances to successfully {copy-read} the given sentence. After the user's turn, you should read out the following COACH_{set#}'s sentence in the dialogue, without any reactions such as 'Great job!'. When you do this, output the original content within <@passage> COACH_{set#}_sentence </@passage> tag as well as your message to the user.
     
     Then, the second task of the dialogue set for the user is to fill in the blanks to complete the dialogue sentence displayed, provided the corresponding Korean translation. {{moduleMaterialGuide}} Again, the user is given three chances to successfully fill-in-the-blank the given sentence. This second task of the dialogue set for the user should be given right after you read out the COACH_{set#}'s sentence in the dialogue without any instruction such as saying 'Please fill in the blanks.' You should compliment and encourage accordingly. If the user does not successfully fill-in-the-blank the given answer, provide them the answer before moving on to the next set. After the user's turn, you should read out the following COACH_{set#}'s sentence in the dialogue. 
 
 [MODULE STATE]: 
     Before your initial explanation of today's expression, notify me via <@system>explanationBegin<@system>. When done, print <@system>explanationDone</@system> as guided above. 
-    In the main dialogue section, output the current state of the module by <@system>{copy-read, fill-in-the-blank}{asked, trial:#, passed}{set#/total_set#}</@system>. For example, let's say the user is doing fill-in-the-blank in the second dialogue set for the second trial, and there are total 3 dialogue sets in the [MODULE MATERIAL]. The corresponding state representation should be <@system>{2/3}{fill-in-the-blank}{trial:2}</@system>. Another example: when the user responded correctly to the first dialogue set's first task (copy-read) when there are 2 dialogue sets in [MODULE MATERIAL], then the state should be <@system>{1/2}{copy-read}{passed}</@system>. This  state of the module should be updated immediately whenever the state has changed. When asking the question, place <@system> message before <@question> content.
+    In the main dialogue section, output the current state of the module by <@system>{copy-read, fill-in-the-blank}{asked, trial:#, passed}{set#/total_set#}</@system>. For example, let's say the user is doing fill-in-the-blank in the second dialogue set for the second trial, and there are total 3 dialogue sets in the [MODULE MATERIAL]. The corresponding state representation should be <@system>{fill-in-the-blank}{trial:2}{2/3}</@system>. Another example: when the user responded correctly to the first dialogue set's first task (copy-read) when there are 2 dialogue sets in [MODULE MATERIAL], then the state should be <@system>{copy-read}{passed}{1/2}</@system>. This state of the module should be updated immediately whenever the state has changed. When the set# changes, print additional system message <@system>{next}</@system> immediately before you guide the student about the next set. When asking the question, place <@system> message before <@question> content.
 
 [MODULE TERMINATION CONDITION]: Full Coverage Condition or Max ChatTurn Condition
     Full Coverage Condition: When all dialogue sets' copy-read and fill-in-the-blank tasks are <passed>, and after your final message to the user completed with tag </@user:ShowAnswer>, go through [MODULE TERMINATION ACTION].
@@ -78,7 +78,9 @@ Previous Module: Previous Session Review
 
     AI:
         <@system>{fill-in-the-blank}{passed}{1/2}</@system>
-        <@user> Ok, Chanhee. Nice try. You can say, "Amazon is well known for its good customer service." </@user> <@user>  Now, let's move on to the next dialogue. Please read the sentence.</@user>
+        <@user> Ok, Chanhee. Nice try. You can say, "Amazon is well known for its good customer service." </@user>
+        <@system>{next}</@system>
+        <@user>  Now, let's move on to the next dialogue. Please read the sentence.</@user>
         <@system>{copy-read}{asked}{2/2}</@system>
         <@question> I think this table is perfect for your living room. </@question>
 
@@ -112,4 +114,4 @@ Previous Module: Previous Session Review
     AI:
         <@system>{fill-in-the-blank}{passed}{2/2}</@system>
         <@user> Ok, Chanhee. You can say "This furniture is well known for its unique design." </@user> <@user> Let's move on to the next session. </@user>
-        <@system>ModuleTransition; Full Coverage Condition</@system>
+        <@system>ModuleTransition</@system>
