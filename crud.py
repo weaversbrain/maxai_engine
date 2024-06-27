@@ -24,13 +24,15 @@ def genChat(createChatData: CreateChatModel):
     sql = """
         INSERT INTO chat 
         SET
-            id              = '{}',
-            userId          = '{}',
-            lessonId        = '{}',
-            userName        = '{}',
-            teacherName     = '{}',
-            teacherPersona  = '{}'
-    """.format(
+            id              = %s,
+            userId          = %s,
+            lessonId        = %s,
+            userName        = %s,
+            teacherName     = %s,
+            teacherPersona  = %s
+    """
+
+    params = (
         createChatData.chatId,
         str(createChatData.userId),
         str(createChatData.lessonId),
@@ -41,26 +43,30 @@ def genChat(createChatData: CreateChatModel):
         ),  # ' 문자 처리
     )
 
-    chatId = db.insertDB(sql)
+    chatId = db.insertDB(sql, params)
     return chatId
 
 
 def setChat(updateData: dict, whereData: dict):
     updateSql = ""
     whereSql = " WHERE 1=1"
+    updateParams = []
+    whereParams = []
 
     if len(updateData) < 1 or len(whereData) < 1:
         return None
 
     # update 값 세팅
     for key, val in updateData.items():
-        updateSql += f"{key} = '{val}',"
+        updateSql += f"{key} = %s, "
+        updateParams.append(val)
 
-    updateSql = updateSql[:-1]  # 마지막 , 제거
+    updateSql = updateSql[:-2]  # 마지막 ", " 제거
 
     # where 값 세팅
     for key, val in whereData.items():
-        whereSql += f" AND {key} = '{val}'"
+        whereSql += f" AND {key} = %s"
+        whereParams.append(val)
 
     db = Database("mysql")
     sql = f"""
@@ -70,7 +76,10 @@ def setChat(updateData: dict, whereData: dict):
                 {updateSql}
             {whereSql}
     """
-    db.updateDB(sql)
+    # updateParams와 whereParams를 튜플로 변환
+    params = tuple(updateParams + whereParams)
+
+    db.updateDB(sql, params)
 
 
 def setChatInfo(
@@ -85,21 +94,22 @@ def setChatInfo(
             UPDATE 
                 chat 
             SET 
-                messages = '%s', 
-                pastConversation='%s', 
-                chatTurn=%d, 
-                currentModule='%s',
+                messages = %s, 
+                pastConversation=%s, 
+                chatTurn=%s, 
+                currentModule=%s,
                 updatedAt = NOW()
             WHERE 
-                id = %d
-        """ % (
-        escapeText(json.dumps(messages, ensure_ascii=False)),
+                id = %s
+        """
+    params = (
+        json.dumps(messages, ensure_ascii=False),
         escapeText(pastConversation) if pastConversation else "",
         chatTurn,
         currentModule,
         chatId,
     )
-    chatId = db.updateDB(sql)
+    chatId = db.updateDB(sql, params)
     return chatId
 
 
@@ -136,36 +146,50 @@ def getListHistory(whereData: dict):
 
 def genHistory(createHistoryData: CreateHistoryModel):
     db = Database("mysql")
-    sql = f"""
+    sql = """
         INSERT INTO engine6.chatHistory 
         SET
-            chatId           = '{createHistoryData['chatId']}',
-            userId           = '{createHistoryData['userId']}',
-            speaker          = '{createHistoryData['speaker']}',
-            message          = '{createHistoryData['message']}',
-            module           = '{createHistoryData['module']}',
-            chatTurn         = '{createHistoryData['chatTurn']}'
+            chatId           = %s,
+            userId           = %s,
+            speaker          = %s,
+            message          = %s,
+            module           = %s,
+            chatTurn         = %s
     """
-    insertId = db.insertDB(sql)
+
+    params = (
+        createHistoryData["chatId"],
+        createHistoryData["userId"],
+        createHistoryData["speaker"],
+        createHistoryData["message"],
+        createHistoryData["module"],
+        createHistoryData["chatTurn"],
+    )
+
+    insertId = db.insertDB(sql, params)
     return insertId
 
 
-def setHistory(updateData: dict, whereData: dict):
+def setHistory(updateData: dict, whereData: dict) -> None:
     updateSql = ""
     whereSql = " WHERE 1=1"
+    updateParams = []
+    whereParams = []
 
     if len(updateData) < 1 or len(whereData) < 1:
         return None
 
     # update 값 세팅
     for key, val in updateData.items():
-        updateSql += f"{key} = '{val}',"
+        updateSql += f"{key} = %s, "
+        updateParams.append(val)
 
-    updateSql = updateSql[:-1]  # 마지막 , 제거
+    updateSql = updateSql[:-2]  # 마지막 ", " 제거
 
     # where 값 세팅
     for key, val in whereData.items():
-        whereSql += f" AND {key} = '{val}'"
+        whereSql += f" AND {key} = %s"
+        whereParams.append(val)
 
     db = Database("mysql")
     sql = f"""
@@ -175,7 +199,11 @@ def setHistory(updateData: dict, whereData: dict):
                 {updateSql}
             {whereSql}
     """
-    db.updateDB(sql)
+
+    # updateParams와 whereParams를 튜플로 변환
+    params = tuple(updateParams + whereParams)
+
+    db.updateDB(sql, params)
 
 
 def getLessonInfo(lessonId: int):
@@ -271,32 +299,30 @@ def genChatCompletion(CreateChatCompletionModel):
     sql = """
         INSERT INTO engine6.chatCompletionLog
         SET
-            id                  = '{}',
-            chatId              = '{}',
-            request             = '{}',
-            response            = '{}',
-            model               = '{}',
-            created             = '{}',
-            completionTokens    = '{}',
-            promptTokens        = '{}',
-            totalRequestTokens  = '{}',
-            inputTokens         = '{}',
-            outputTokens        = '{}',
-            totalTokens         = '{}',
-            inputCost           = '{:.4f}',
-            outputCost          = '{:.4f}',
-            totalCost           = '{:.4f}',
-            llmTime             = '{:.4f}',
-            totalTime           = '{:.4f}'
-    """.format(
+            id                  = %s,
+            chatId              = %s,
+            request             = %s,
+            response            = %s,
+            model               = %s,
+            created             = %s,
+            completionTokens    = %s,
+            promptTokens        = %s,
+            totalRequestTokens  = %s,
+            inputTokens         = %s,
+            outputTokens        = %s,
+            totalTokens         = %s,
+            inputCost           = %s,
+            outputCost          = %s,
+            totalCost           = %s,
+            llmTime             = %s,
+            totalTime           = %s
+    """
+
+    params = (
         CreateChatCompletionModel["response"]["id"],
         CreateChatCompletionModel["chatId"],
-        escapeText(
-            json.dumps(CreateChatCompletionModel["request"], ensure_ascii=False)
-        ),
-        escapeText(
-            json.dumps(CreateChatCompletionModel["response"], ensure_ascii=False)
-        ),
+        json.dumps(CreateChatCompletionModel["request"], ensure_ascii=False),
+        json.dumps(CreateChatCompletionModel["response"], ensure_ascii=False),
         CreateChatCompletionModel["response"]["model"],
         CreateChatCompletionModel["response"]["created"],
         CreateChatCompletionModel["response"]["usage"]["completion_tokens"],
@@ -306,34 +332,40 @@ def genChatCompletion(CreateChatCompletionModel):
         CreateChatCompletionModel["outputTokens"],
         CreateChatCompletionModel["inputTokens"]
         + CreateChatCompletionModel["outputTokens"],
-        CreateChatCompletionModel["inputCost"],
-        CreateChatCompletionModel["outputCost"],
-        CreateChatCompletionModel["inputCost"]
-        + CreateChatCompletionModel["outputCost"],
-        CreateChatCompletionModel["llmTime"],
-        CreateChatCompletionModel["totalTime"],
+        "{:.4f}".format(CreateChatCompletionModel["inputCost"]),
+        "{:.4f}".format(CreateChatCompletionModel["outputCost"]),
+        "{:.4f}".format(
+            CreateChatCompletionModel["inputCost"]
+            + CreateChatCompletionModel["outputCost"]
+        ),
+        "{:.4f}".format(CreateChatCompletionModel["llmTime"]),
+        "{:.4f}".format(CreateChatCompletionModel["totalTime"]),
     )
 
-    insertId = db.insertDB(sql)
+    insertId = db.insertDB(sql, params)
     return insertId
 
 
 def setChatCompletion(updateData: dict, whereData: dict):
     updateSql = ""
     whereSql = " WHERE 1=1"
+    updateParams = []
+    whereParams = []
 
     if len(updateData) < 1 or len(whereData) < 1:
         return None
 
     # update 값 세팅
     for key, val in updateData.items():
-        updateSql += f"{key} = '{val}',"
+        updateSql += f"{key} = %s, "
+        updateParams.append(val)
 
-    updateSql = updateSql[:-1]  # 마지막 , 제거
+    updateSql = updateSql[:-2]  # 마지막 ", " 제거
 
     # where 값 세팅
     for key, val in whereData.items():
-        whereSql += f" AND {key} = '{val}'"
+        whereSql += f" AND {key} = %s"
+        whereParams.append(val)
 
     db = Database("mysql")
     sql = f"""
@@ -343,4 +375,7 @@ def setChatCompletion(updateData: dict, whereData: dict):
                 {updateSql}
             {whereSql}
     """
-    db.updateDB(sql)
+    # updateParams와 whereParams를 튜플로 변환
+    params = tuple(updateParams + whereParams)
+
+    db.updateDB(sql, params)

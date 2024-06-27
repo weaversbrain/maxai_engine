@@ -18,8 +18,9 @@ from dotenv import dotenv_values
 import os
 
 # 절대경로
-abspath = os.path.dirname(os.path.abspath(__file__)) 
-config = dotenv_values(abspath+"/.env")  # 환경변수 읽어오기
+abspath = os.path.dirname(os.path.abspath(__file__))
+config = dotenv_values(abspath + "/.env")  # 환경변수 읽어오기
+
 
 class Database:
 
@@ -59,13 +60,16 @@ class Database:
     def commit(self):
         self.cursor.commit()
 
-    def insertDB(self, sql):
+    def insertDB(self, sql, params=None):
         try:
-            self.cursor.execute(sql)
+            if params:
+                self.cursor.execute(sql, params)
+            else:
+                self.cursor.execute(sql)
             self.db.commit()
             return self.cursor.lastrowid
         except Exception as e:
-            print(" insert DB  ", e)
+            print(f"DB update failed: {str(e)}")
 
     def readDB(self, sql, type="one"):
         try:
@@ -79,12 +83,15 @@ class Database:
 
         return result
 
-    def updateDB(self, sql):
+    def updateDB(self, sql, params=None):
         try:
-            self.cursor.execute(sql)
+            if params:
+                self.cursor.execute(sql, params)
+            else:
+                self.cursor.execute(sql)
             self.db.commit()
         except Exception as e:
-            print(" update DB err", e)
+            print(f"DB update failed: {str(e)}")
 
     def deleteDB(self, sql):
         try:

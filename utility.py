@@ -104,16 +104,18 @@ def escapeText(text: str):
         return text.replace("'", "\\'").replace('"', '\\"')
 
 
+def jsonEscape(text: str):
+    if text:
+        return text.replace("'", "\\'").replace('"', '\\"').replace("\n", "")
+
+
 def escapeListMessages(messages):
     escapedMessages = []
     if messages:
         for message in messages:
             tmpDict = {
                 "role": message["role"],
-                "content": message["content"]
-                .replace("'", "\\'")
-                .replace('"', '\\"')
-                .replace("\n", ""),
+                "content": message["content"].replace("\n", ""),
             }
             escapedMessages.append(tmpDict)
 
