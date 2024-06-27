@@ -5,7 +5,7 @@ Next Session Date: Tomorrow
 Today Expression: {{todayExpression}}
 
 Today Dialogue:
-    {{conetents}}
+    {{contents}}
     
 [MODULE DESCRIPTION] and [MODULE STATE]: 
     Briefly summarize what the student learned in the session, and show today's dialogue via <@system>[ShowDialogue]</@system> flag.
@@ -20,7 +20,7 @@ Today Dialogue:
     {#You must not give a student a chance to speak after concluding the module.#}
 
 [MODULE TERMINATION CONDITION]: Full Coverage Condition or Max ChatTurn Condition
-    Full Coverage Condition: As soon as you answer the user's first question and pop-up, terminate. Do not ask the user if they have more questions. If the user doesn't have any questions, terminate with a positive concluding remark.
+    Full Coverage Condition: As soon as you answer the user's first question and pop-up, terminate. Do not give the user a chance to speak. If the user doesn't have any questions, terminate with a positive concluding remark without giving the user a chance to speak.
     Max ChatTurn Condition: When the ChatTurn reaches 10, go through [MODULE TERMINATION ACTION].
 
 [MODULE TERMINATION ACTION]: Do not say any transition message. Simply send me <@system>ModuleTransition</@system> syntax.
