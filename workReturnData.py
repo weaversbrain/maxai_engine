@@ -44,7 +44,7 @@ def getTranslation(chatId, text):
         n=NUM,
     )
     llmEndTime = time.time()
-    
+
     llmTime = llmEndTime - llmStartTime
 
     ###########################
@@ -102,7 +102,7 @@ def getTranslation(chatId, text):
         "inputCost": inputCost,
         "outputCost": outputCost,
         "llmTime": llmTime,
-        "totalTime": llmTime
+        "totalTime": llmTime,
     }
 
     completionIdx = genChatCompletion(completionData)
@@ -147,13 +147,6 @@ def workReturnData(chatId, module, splitList):
                 "content": data["content"],
                 "translation": translationData["translation"],
             }
-
-            #########################################
-            # translation 추가 처리
-            #########################################
-            # if nextData:
-            #     if nextData["type"] == "translation":  # 다음 태그가 번역 태그일 때
-            #         answerData.update({"translation": nextData["content"]})
 
             baseFormat["answerList"].append(answerData)
 
@@ -351,12 +344,12 @@ def workReturnData(chatId, module, splitList):
     baseFormat["hintList"] = hintList
 
     totalEndTime = time.time()  # 전체 종료 시간
-    
+
     totalTime = totalEndTime - totalStartTime
 
     if completionIdx:
         updateData = {
-            "totalTime": "{:.4f}".format(totalEndTime - totalStartTime),
+            "totalTime": "{:.4f}".format(totalTime),
         }
 
         whereData = {"idx": completionIdx}
