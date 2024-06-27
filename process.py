@@ -355,6 +355,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
         "chatId": chatInfo["id"],
         "request": requestToJson,
         "response": responseToJson,
+        "returnData": returnData,
         "inputTokens": inputTokens,
         "outputTokens": outputTokens,
         "inputCost": inputCost,

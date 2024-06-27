@@ -59,6 +59,7 @@ class CreateChatCompletionModel(BaseModel):
     chatId: int = 0
     request: Optional[str] = None
     response: Optional[str] = None
+    returnData: Optional[str] = None
     inputToken: int = 0
     outputToken: int = 0
     inputTokenCost: float = 0

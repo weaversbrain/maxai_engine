@@ -303,6 +303,7 @@ def genChatCompletion(CreateChatCompletionModel):
             chatId              = %s,
             request             = %s,
             response            = %s,
+            returnData          = %s,
             model               = %s,
             created             = %s,
             completionTokens    = %s,
@@ -323,6 +324,11 @@ def genChatCompletion(CreateChatCompletionModel):
         CreateChatCompletionModel["chatId"],
         json.dumps(CreateChatCompletionModel["request"], ensure_ascii=False),
         json.dumps(CreateChatCompletionModel["response"], ensure_ascii=False),
+        (
+            json.dumps(CreateChatCompletionModel["returnData"], ensure_ascii=False)
+            if "returnData" in CreateChatCompletionModel
+            else ""
+        ),
         CreateChatCompletionModel["response"]["model"],
         CreateChatCompletionModel["response"]["created"],
         CreateChatCompletionModel["response"]["usage"]["completion_tokens"],
