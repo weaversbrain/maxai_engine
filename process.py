@@ -222,7 +222,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
             "userId": chatInfo["userId"],
             "module": moduleInfo["module"],
             "speaker": "USER",
-            "message": escapeText(moduleData.userAnswer),
+            "message": moduleData.userAnswer,
             "chatTurn": curChatTurn,
         }
 
@@ -318,7 +318,7 @@ def runEngin6(moduleData: ModuleModel, type: str):
                 "userId": chatInfo["userId"],
                 "module": moduleInfo["module"],
                 "speaker": speaker,
-                "message": escapeText(msg),
+                "message": msg,
                 "chatTurn": curChatTurn,
             }
             genHistory(createHistoryData)

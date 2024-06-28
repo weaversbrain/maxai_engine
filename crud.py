@@ -38,9 +38,7 @@ def genChat(createChatData: CreateChatModel):
         str(createChatData.lessonId),
         createChatData.userName,
         createChatData.teacherName,
-        escapeText(
-            createChatData.teacherPersona.replace("\n", "").replace("\t", "")
-        ),  # ' 문자 처리
+        createChatData.teacherPersona.replace("\n", "").replace("\t", ""),
     )
 
     chatId = db.insertDB(sql, params)
@@ -104,7 +102,7 @@ def setChatInfo(
         """
     params = (
         json.dumps(messages, ensure_ascii=False),
-        escapeText(pastConversation) if pastConversation else "",
+        pastConversation if pastConversation else "",
         chatTurn,
         currentModule,
         chatId,

@@ -180,8 +180,8 @@ def createFeedback(createFeedbackModel):
     # DB처리
     #########################################
     updateData = {
-        "tutorComment": escapeText(tutorComment),
-        "thingsToImprove": escapeText(json.dumps(thingsToImprove, ensure_ascii=False)),
+        "tutorComment": tutorComment,
+        "thingsToImprove": json.dumps(thingsToImprove, ensure_ascii=False),
     }
 
     whereData = {"id": createFeedbackModel.chatId}
