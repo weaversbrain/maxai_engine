@@ -385,3 +385,30 @@ def setChatCompletion(updateData: dict, whereData: dict):
     params = tuple(updateParams + whereParams)
 
     db.updateDB(sql, params)
+
+
+def getPromptList():
+    db = Database("mysql")
+
+    sql = f"""
+        SELECT 
+            a.*,
+            (SELECT content FROM engine6.prompt b WHERE b.id = a.id) content 
+        FROM 
+            (
+                SELECT 
+                    name, 
+                    MAX(VERSION) version, 
+                    MAX(id) id, 
+                    MAX(createdAt) createdAt 
+                FROM 
+                    engine6.prompt p 
+                GROUP BY 
+                    name
+                ORDER BY 
+                    LOWER(p.name) 
+            ) a
+    """
+    promptList = db.readDB(sql, "all")
+
+    return promptList

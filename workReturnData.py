@@ -168,9 +168,9 @@ def workReturnData(chatId, module, splitList):
                 status = "trial" if flagList[1].find("trial") >= 0 else flagList[1]
             if listIndexExist(flagList, 2):
                 tmpCnt = flagList[2]
-                tmpCnt = tmpCnt.split("/")
-                curIdx = int(tmpCnt[0]) - 1 if int(tmpCnt[0]) > 0 else 0
-                totalCnt = int(tmpCnt[1])
+                cntList = tmpCnt.split("/")
+                curIdx = int(cntList[0]) - 1 if int(cntList[0]) > 0 else 0
+                totalCnt = int(cntList[1])
 
             #########################################
             # 로직 처리

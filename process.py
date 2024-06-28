@@ -71,6 +71,23 @@ def runEngin6(moduleData: ModuleModel, type: str):
         return {"code": "E", "msg": "오늘의 표현 정보가 없습니다."}
 
     renderData.update({"todayExpression": todayExpression})
+    
+    #########################################
+    # 프롬프트 추출
+    #########################################
+    promptList = getPromptList()
+    renderDict = {}
+    
+    if not promptList:
+        return {"code": "E", "msg": "프롬프트 데이터가 없습니다."}
+    
+    for prompt in promptList:
+        renderDict.update(
+            {
+                prompt['name']: prompt['content']
+            }
+        )
+    
 
     ###########################
     # 1. chat Data 가져옴
@@ -101,7 +118,8 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     # 2. initialize 작업
     ###########################
-    renderedStr = renderTemplate("INITIAL", renderData)
+    # renderedStr = renderTemplate("INITIAL", renderData)
+    renderedStr = renderPrompt(renderDict['E6_INITIAL'], renderData)
     messageData = {
         "role": "system",
         "content": renderedStr,
@@ -147,7 +165,8 @@ def runEngin6(moduleData: ModuleModel, type: str):
     ###########################
     moduleInfo = getModule(moduleData.moduleId)
     renderData.update({"contents": moduleInfo["content"]})
-    renderedStr = renderTemplate(moduleInfo["module"], renderData)
+    renderedStr = renderPrompt(renderDict[moduleInfo['module']], renderData)
+    # renderedStr = renderTemplate(moduleInfo["module"], renderData)
 
     messageData = {
         "role": "system",

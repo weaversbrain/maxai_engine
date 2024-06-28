@@ -235,6 +235,18 @@ def findBlanksIndex(sentence):
     return indices
 
 
+# 프롬프트 랜더링 함수
+def renderPrompt(prompt, data):
+    pattern = r"\{\{([^{}]*)\}\}"
+
+    def replace(match):
+        key = match.group(1).strip()
+        return str(data.get(key, ""))
+
+    rendered_text = re.sub(pattern, replace, prompt)
+    return rendered_text
+
+
 # 인덱스 존재 여부 파악
 def listIndexExist(arr, i):
     return (0 <= i < len(arr)) or (-len(arr) <= i < 0)
