@@ -97,7 +97,12 @@ async def addUserStatement(moduleData: ModuleModel):
 
 @chat.post("/moduleList")
 async def moduleList(moduleListData: ModuleListData):
-    return getListLessonModule(moduleListData.lessonId)
+    returnData = getListLessonModule(moduleListData.lessonId)
+
+    if not returnData:
+        return {"code": "E", "msg": "모듈리스트가 없습니다."}
+
+    return returnData
 
 
 @chat.post("/createFeedback")
