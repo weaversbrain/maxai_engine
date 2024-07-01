@@ -55,9 +55,16 @@ async def createChat(createChatData: CreateChatModel):
 @chat.post("/startModule")
 async def moduleStart(moduleData: ModuleModel):
     if not moduleData.moduleId or not moduleData.chatId:
-        return {"result": False}
+        return {"code": "E", "msg": "필수값 누락"}
     else:
         returnData = runEngin6(moduleData, "module")
+
+        if not returnData:
+            return {"code": "E01", "msg": "response값이 없습니다."}
+
+        if not "responseData" in returnData:
+            return {"code": "E02", "msg": "response값이 없습니다."}
+
         return {"result": True, "data": returnData["responseData"]}
 
 
@@ -73,6 +80,13 @@ async def addUserStatement(moduleData: ModuleModel):
             )
 
         result = runEngin6(moduleData, "answer")
+
+        if not result:
+            return {"code": "E01", "msg": "response값이 없습니다."}
+
+        if not "responseData" in result:
+            return {"code": "E02", "msg": "response값이 없습니다."}
+
         returnData = {"result": True, "data": result["responseData"]}
 
         if "userChatStatementId" in result:
@@ -91,4 +105,9 @@ async def feedbackCreate(createFeedbackModel: CreateFeedbackModel):
     if not createFeedbackModel.userId or not createFeedbackModel.chatId:
         return {"code": "E", "msg": "필수값 누락"}
 
-    return createFeedback(createFeedbackModel)
+    returnData = createFeedback(createFeedbackModel)
+
+    if not returnData:
+        return {"code": "E", "msg": "feedback데이터가 없습니다."}
+
+    return returnData
